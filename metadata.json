@@ -1,0 +1,6 @@
+{
+  "name": "Whop Digital Marketplace & Creator Hub",
+  "description": "Production Whop marketplace, membership gating, license verification, and creator app.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
