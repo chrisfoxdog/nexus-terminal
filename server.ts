@@ -820,11 +820,11 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
 });
 
 // Fetch Webhook History
-app.get("/api/v1/webhooks/history", (_req, res) => {
+app.get("/api/v1/webhooks/history", async (_req, res) => {
   const store = loadStore();
   res.json({
-    total_received: store.webhookLogs.length,
-    logs: store.webhookLogs,
+    total_received: (await store).webhookLogs.length,
+    logs: (await store).webhookLogs,
   });
 });
 
@@ -1074,5 +1074,9 @@ startServer();
 
 
 
+
+
+
+export default app;
 
 
