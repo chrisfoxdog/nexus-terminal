@@ -122,7 +122,7 @@ function verifyWhopWebhookSignature(
 
     const providedSignatures = signatureHeader
       .split(/\s+/)
-      .map((token) => token.replace(/^v1=/, "").trim())
+      .map((token) => token.replace(/^v1[=,]/, "").trim())
       .filter(Boolean);
 
     for (const provided of providedSignatures) {
@@ -1080,6 +1080,7 @@ if (process.env.VERCEL !== "1") {
 
 
 export default app;
+
 
 
 
