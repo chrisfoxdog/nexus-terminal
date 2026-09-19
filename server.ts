@@ -1,4 +1,11 @@
-﻿import "dotenv/config";
+﻿import { WhopClient } from "@whop/sdk";
+
+function getWhopClient() {
+  return new WhopClient({
+    token: process.env.WHOP_API_KEY || "",
+  });
+}
+import "dotenv/config";
 import express from "express";
 import path from "path";
 import fs from "fs";
@@ -100,13 +107,7 @@ function verifyWhopWebhookSignature(
   try {
     const signedPayload = `${msgId}.${msgTimestamp}.${payloadStr}`;
 
-    let signingSecret = secret;
-
-    if (secret.startsWith("whsec_") || secret.startsWith("ws_")) {
-      signingSecret = secret.replace(/^whsec_|^ws_/, "");
-    }
-
-    const key = Buffer.from(signingSecret, "base64");
+    const key = Buffer.from(secret, "utf-8");
 
     if (key.length === 0) {
       return {
@@ -479,108 +480,71 @@ app.post("/api/v1/licenses/validate", async (req, res) => {
   }
 
   try {
-    const v5Response = await fetch(
-      "https://api.whop.com/api/v5/company/memberships",
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.WHOP_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
+    const whopClient = getWhopClient();
 
-    if (v5Response.ok) {
-      const v5Data = await v5Response.json();
-      const memberships = Array.isArray(v5Data?.data) ? v5Data.data : [];
+    // Whop SDK supports retrieving a membership by software license key.
+    const membershipResponse: any = await whopClient.memberships.retrieve({
+      id: license_key,
+    });
+    const membership: any = membershipResponse.data;
 
-      const mem = memberships.find((item: any) => {
-        const itemLicense =
-          item.license_key ||
-          item.licenseKey ||
-          item.license?.key;
+    const status = String(membership?.status || "").toLowerCase();
 
-        const itemProductId =
-          item.product_id ||
-          item.product?.id;
+    const isValid =
+      membership?.valid === true ||
+      status === "completed" ||
+      status === "active" ||
+      status === "valid" ||
+      status === "trialing";
 
-        return (
-          itemLicense === license_key &&
-          (!product_id || itemProductId === product_id)
-        );
-      });
+    const membershipProductId =
+      membership?.product_id ||
+      membership?.product?.id ||
+      null;
 
-      if (mem) {
-        const status = String(mem.status || "").toLowerCase();
-        const isValid =
-          mem.valid === true ||
-          status === "completed" ||
-          status === "active" ||
-          status === "valid";
-
-        return res.json({
-          valid: isValid,
-          status: isValid ? "ACTIVE" : "INVALID",
-          verified_source: "WHOP_API_V5_LIVE",
-          license_key,
-          product_id: mem.product_id || mem.product?.id || product_id || null,
-          membership_id: mem.id || mem.membership_id || null,
-          plan_id: mem.plan_id || mem.plan?.id || null,
-          expires_at: mem.expires_at
-            ? new Date(Number(mem.expires_at) * 1000).toISOString()
-            : null,
-          created_at: mem.created_at
-            ? new Date(Number(mem.created_at) * 1000).toISOString()
-            : null,
-          whop_details: mem,
-        });
-      }
-    }
-
-    const v2Response = await fetch(
-      "https://api.whop.com/api/v2/licenses/validate",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.WHOP_API_KEY}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ key: license_key }),
-      }
-    );
-
-    if (v2Response.ok) {
-      const v2Data = await v2Response.json();
-
-      const status = String(
-        v2Data?.status ||
-        v2Data?.data?.status ||
-        ""
-      ).toLowerCase();
-
-      const isValid =
-        v2Data?.valid === true ||
-        status === "completed" ||
-        status === "active" ||
-        status === "valid";
-
+    if (product_id && membershipProductId && membershipProductId !== product_id) {
       return res.json({
-        valid: isValid,
-        status: isValid ? "ACTIVE" : "INVALID",
-        verified_source: "WHOP_API_V2_LIVE",
+        valid: false,
+        status: "INVALID",
+        verified_source: "WHOP_SDK",
         license_key,
-        whop_details: v2Data,
+        product_id: membershipProductId,
+        membership_id: membership?.id || null,
+        plan_id: membership?.plan_id || membership?.plan?.id || null,
+        whop_details: membership,
       });
     }
 
-    return res.status(404).json({
-      valid: false,
-      status: "INVALID",
-      error: "KEY_NOT_FOUND",
-      message: "The requested Whop license key could not be verified.",
-      timestamp: new Date().toISOString(),
+    return res.json({
+      valid: isValid,
+      status: isValid ? "ACTIVE" : "INVALID",
+      verified_source: "WHOP_SDK",
+      license_key: membership?.license_key || license_key,
+      product_id: membershipProductId || product_id || null,
+      membership_id: membership?.id || membership?.membership_id || null,
+      plan_id: membership?.plan_id || membership?.plan?.id || null,
+      expires_at: membership?.expires_at
+        ? new Date(Number(membership.expires_at) * 1000).toISOString()
+        : null,
+      created_at: membership?.created_at
+        ? new Date(Number(membership.created_at) * 1000).toISOString()
+        : null,
+      whop_details: membership,
     });
   } catch (error: any) {
-    console.error("[Whop API] License validation error:", error);
+    console.error("[Whop SDK] License validation error:", error);
+
+    const statusCode = Number(error?.statusCode || error?.status || 0);
+
+    if (statusCode === 404) {
+      return res.status(404).json({
+        valid: false,
+        status: "INVALID",
+        error: "KEY_NOT_FOUND",
+        message: "The requested Whop license key could not be verified.",
+        timestamp: new Date().toISOString(),
+      });
+    }
 
     return res.status(502).json({
       valid: false,
@@ -591,7 +555,6 @@ app.post("/api/v1/licenses/validate", async (req, res) => {
   }
 });
 
-// Whop Membership Live Verification API
 // Whop Membership Live Verification API
 app.post("/api/v1/memberships/validate", async (req, res) => {
   const { membership_id } = req.body;
@@ -614,62 +577,45 @@ app.post("/api/v1/memberships/validate", async (req, res) => {
   }
 
   try {
-    const v5Response = await fetch(`https://api.whop.com/api/v5/company/memberships/${membership_id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.WHOP_API_KEY}`,
-      },
+    const whopClient = getWhopClient();
+
+    // Whop SDK retrieves a membership directly by its mem_ ID.
+    const membershipResponse: any = await whopClient.memberships.retrieve({
+      id: membership_id,
     });
+    const membership: any = membershipResponse.data;
 
-    if (v5Response.ok) {
-      const v5Data = await v5Response.json();
-      const status = String(v5Data?.status || "").toLowerCase();
-      const isValid =
-        v5Data?.valid === true ||
-        status === "completed" ||
-        status === "active" ||
-        status === "valid";
+    const status = String(membership?.status || "").toLowerCase();
 
-      return res.json({
-        valid: isValid,
-        status: isValid ? "ACTIVE" : "INVALID",
-        verified_source: "WHOP_API_V5_LIVE",
-        membership_id,
-        data: v5Data,
-      });
-    }
+    const isValid =
+      membership?.valid === true ||
+      status === "completed" ||
+      status === "active" ||
+      status === "valid" ||
+      status === "trialing";
 
-    const v2Response = await fetch(`https://api.whop.com/api/v2/memberships/${membership_id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.WHOP_API_KEY}`,
-      },
-    });
-
-    if (v2Response.ok) {
-      const v2Data = await v2Response.json();
-      const status = String(v2Data?.status || "").toLowerCase();
-      const isValid =
-        status === "completed" ||
-        status === "active" ||
-        status === "valid";
-
-      return res.json({
-        valid: isValid,
-        status: isValid ? "ACTIVE" : "INVALID",
-        verified_source: "WHOP_API_V2_LIVE",
-        membership_id,
-        data: v2Data,
-      });
-    }
-
-    return res.status(404).json({
-      valid: false,
-      status: "INVALID",
-      error: "MEMBERSHIP_NOT_FOUND",
-      message: "The supplied Whop membership could not be verified.",
+    return res.json({
+      valid: isValid,
+      status: isValid ? "ACTIVE" : "INVALID",
+      verified_source: "WHOP_SDK",
       membership_id,
+      data: membership,
     });
   } catch (error: any) {
-    console.error("[Whop API] Membership validation error:", error);
+    console.error("[Whop SDK] Membership validation error:", error);
+
+    const statusCode = Number(error?.statusCode || error?.status || 0);
+
+    if (statusCode === 404) {
+      return res.status(404).json({
+        valid: false,
+        status: "INVALID",
+        error: "MEMBERSHIP_NOT_FOUND",
+        message: "The supplied Whop membership could not be verified.",
+        membership_id,
+      });
+    }
+
     return res.status(502).json({
       valid: false,
       status: "UNAVAILABLE",
@@ -678,7 +624,6 @@ app.post("/api/v1/memberships/validate", async (req, res) => {
     });
   }
 });
-
 // Production Whop Webhook Receiver Endpoint with HMAC SHA-256 verification
 app.post("/api/v1/webhooks/receive", async (req, res) => {
   if (!process.env.WHOP_WEBHOOK_SECRET) {
@@ -1080,6 +1025,9 @@ if (process.env.VERCEL !== "1") {
 
 
 export default app;
+
+
+
 
 
 
