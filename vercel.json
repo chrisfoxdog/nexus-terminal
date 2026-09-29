@@ -1,9 +1,5 @@
-{
+﻿{
   "rewrites": [
-    {
-      "source": "/api/:match*",
-      "destination": "/api"
-    },
     {
       "source": "/((?!api/).*)",
       "destination": "/index.html"
