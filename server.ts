@@ -334,7 +334,7 @@ app.post("/api/v1/passes/claim", async (req, res) => {
     let verification: any;
 
     if (membership_id) {
-      const verifyResponse = await fetch(`http://127.0.0.1:${process.env.PORT || 3000}/api/v1/memberships/validate`, {
+      const verifyResponse = await fetch(`http://if (membership_id) {:${process.env.PORT || 3000}/api/v1/memberships/validate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ membership_id }),
