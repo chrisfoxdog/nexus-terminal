@@ -1,4 +1,4 @@
-﻿import { WhopClient } from "@whop/sdk";
+import { WhopClient } from "@whop/sdk";
 
 function getWhopClient() {
   return new WhopClient({
@@ -242,9 +242,9 @@ app.get("/api/v1/config/status", (_req, res) => {
     whop_api_configured: !!process.env.WHOP_API_KEY,
     whop_webhook_secret_configured: !!process.env.WHOP_WEBHOOK_SECRET,
     whop_app_id:
-      process.env.WHOP_APP_ID ||
-      process.env.NEXT_PUBLIC_WHOP_APP_ID ||
-      process.env.VITE_WHOP_APP_ID ||
+      (process.env.WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
+      (process.env.NEXT_PUBLIC_WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
+      (process.env.VITE_WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
       "app_gzeMFmZKMcOdbA",
     whop_company_id: process.env.WHOP_COMPANY_ID || "biz_DcAqjfC3rHB0s1",
     environment: process.env.NODE_ENV || "development",
