@@ -660,7 +660,7 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
   }
 
   const eventId = body.id;
-  const action = body.action || body.event_type;
+  const action = body.action || body.event_type || body.type;
   const data = body.data;
 
   if (!action || !data) {
