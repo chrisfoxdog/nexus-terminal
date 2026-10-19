@@ -682,11 +682,12 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
 
   if (
     action === "membership.went_valid" ||
+    action === "membership.activated" ||
     action === "membership.created" ||
     action === "payment.succeeded"
   ) {
-    const userId = data.user_id;
-    const productId = data.product_id;
+    const userId = data.user_id || data.user?.id;
+    const productId = data.product_id || data.product?.id;
     const memId = data.membership_id || data.id;
 
     if (!userId || !productId || !memId) {
