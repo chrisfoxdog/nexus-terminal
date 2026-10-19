@@ -671,7 +671,7 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
     });
   }
 
-  if (isEventProcessed(eventId)) {
+  if (await isEventProcessed(eventId)) {
     console.log(`[Whop Webhook Idempotency] Skipping duplicate event ${eventId}`);
     return res.json({
       received: true,
@@ -679,8 +679,6 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
       event_id: eventId,
     });
   }
-
-  markEventProcessed(eventId);
 
   if (
     action === "membership.went_valid" ||
@@ -740,7 +738,7 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
       });
     }
 
-    updatePassStatus(memId, "expired");
+    await updatePassStatus(memId, "expired");
     console.log(`[Whop Webhook Engine] Revoked access for membership ${memId}`);
   }
 
@@ -753,7 +751,8 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
     signatureValid: true,
   };
 
-  logWebhook(logEntry);
+  await logWebhook(logEntry);
+  await markEventProcessed(eventId);
 
   return res.json({
     received: true,
