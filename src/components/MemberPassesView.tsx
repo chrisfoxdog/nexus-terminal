@@ -168,7 +168,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   }
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-24">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1

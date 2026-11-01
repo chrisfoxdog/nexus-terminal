@@ -145,12 +145,12 @@ export const GeminiProductChatWidget: React.FC<GeminiProductChatWidgetProps> = (
   };
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 font-sans">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50 font-sans">
       {/* Floating Widget Trigger Button */}
       {!isOpen && (
         <button
           onClick={() => setIsOpen(true)}
-          className="group relative flex items-center gap-2.5 px-4 py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
+          className="group relative flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 sm:py-3 rounded-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-xl shadow-indigo-600/30 transition-all hover:scale-105 active:scale-95"
         >
           <div className="relative">
             <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
@@ -166,7 +166,7 @@ export const GeminiProductChatWidget: React.FC<GeminiProductChatWidgetProps> = (
       {/* Expanded Chat Box Window */}
       {isOpen && (
         <div
-          className={`w-[340px] sm:w-[400px] h-[520px] rounded-3xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 ${
+          className={`w-[calc(100vw-2rem)] max-w-[340px] sm:w-[400px] sm:max-w-[400px] h-[520px] max-h-[calc(100dvh-6rem)] rounded-3xl border shadow-2xl flex flex-col overflow-hidden transition-all duration-300 animate-in fade-in slide-in-from-bottom-4 ${
             darkMode ? 'bg-slate-900 border-slate-800 text-slate-100' : 'bg-white border-slate-200 text-slate-900'
           }`}
         >

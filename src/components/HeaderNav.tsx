@@ -36,13 +36,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
       darkMode ? 'bg-slate-900/90 border-slate-800 text-slate-100' : 'bg-white/90 border-slate-200 text-slate-900'
     } backdrop-blur-md transition-colors duration-200`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
-          
+        <div className="flex items-center justify-between h-16 gap-2 sm:gap-4 min-w-0">
+
           {/* Logo & Whop Brand */}
-          <div className="flex items-center gap-6">
-            <button 
-              onClick={() => onSelectMode('marketplace')} 
-              className="flex items-center gap-3 text-left group focus:outline-none"
+          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+            <button
+              onClick={() => onSelectMode('marketplace')}
+              className="flex items-center gap-3 text-left group focus:outline-none shrink-0"
             >
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg italic shadow-sm group-hover:scale-105 transition-transform">
                 N
@@ -134,7 +134,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           )}
 
           {/* Right Controls */}
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             {/* Embedded in Whop Badge */}
             {isEmbedded && (
               <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-bold bg-amber-500/10 border border-amber-500/30 text-amber-400">
@@ -147,11 +147,12 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {onOpenWhopAppStore && (
               <button
                 onClick={onOpenWhopAppStore}
-                className="px-3 py-1.5 rounded-lg bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-orange-600/20 transition-all cursor-pointer"
+                className="px-2 py-1.5 sm:px-3 rounded-lg bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-500 hover:to-amber-500 text-white text-xs font-black flex items-center gap-1.5 shadow-md shadow-orange-600/20 transition-all cursor-pointer whitespace-nowrap shrink-0"
                 title="Whop App Store Setup Guide & Permissions"
               >
-                <Rocket className="w-3.5 h-3.5" />
-                <span>Sell on Whop / Guide</span>
+                <Rocket className="w-3.5 h-3.5 shrink-0" />
+                <span className="sm:hidden">Guide</span>
+                <span className="hidden sm:inline">Sell on Whop / Guide</span>
               </button>
             )}
 
@@ -159,7 +160,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {onOpenHowToUse && (
               <button
                 onClick={onOpenHowToUse}
-                className="px-3 py-1.5 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs"
+                className="px-2 py-1.5 sm:px-3 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs shrink-0"
                 title="How to Use Each Feature"
               >
                 <HelpCircle className="w-4 h-4 text-indigo-500" />
@@ -219,7 +220,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         </div>
 
         {/* Mobile Sub Navigation Bar */}
-        <div className="md:hidden flex items-center justify-around py-2 border-t border-slate-200 dark:border-slate-800 text-xs">
+        <div className="md:hidden flex items-center justify-around py-2 border-t border-slate-200 dark:border-slate-800 text-xs overflow-x-auto">
           <button
             onClick={() => onSelectMode('marketplace')}
             className={`flex flex-col items-center gap-1 ${currentMode === 'marketplace' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500'}`}

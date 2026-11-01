@@ -39,7 +39,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
   });
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-24">
       {/* Featured Whop Hero Banner (Sleek Theme) */}
       <div className="relative rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-800 bg-gradient-to-br from-indigo-900 via-slate-900 to-slate-950 text-white p-6 sm:p-10 shadow-lg">
         <div className="absolute -right-20 -top-20 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none" />
@@ -51,7 +51,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
             Nexus Terminal — Sample Catalog
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
+          <h1 className="text-2xl sm:text-5xl font-extrabold tracking-tight leading-tight break-words">
             One terminal for your Whop storefront and members.
           </h1>
 

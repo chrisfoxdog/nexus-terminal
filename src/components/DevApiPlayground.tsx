@@ -170,7 +170,7 @@ validate_whop_license("${testKey}")`;
   };
 
   return (
-    <div className="space-y-8 pb-12">
+    <div className="space-y-8 pb-24">
       {/* Header */}
       <div className="space-y-2">
         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-purple-500/10 text-purple-400 text-xs font-bold border border-purple-500/20">
