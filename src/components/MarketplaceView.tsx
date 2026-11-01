@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { WhopProduct, ProductCategory } from '../types';
 import { Star, Users, CheckCircle2, ShieldCheck, Sparkles, ArrowRight, Lock, MessageSquare, Download, PlayCircle, Zap, HelpCircle, ChevronDown, ChevronUp, CreditCard, Key } from 'lucide-react';
-import { OfferCountdownTimer } from './OfferCountdownTimer';
 
 interface MarketplaceViewProps {
   products: WhopProduct[];
@@ -49,39 +48,36 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         <div className="relative z-10 max-w-2xl space-y-4">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-400/30 text-indigo-300 text-xs font-semibold backdrop-blur-md">
             <Zap className="w-3.5 h-3.5 text-indigo-400" />
-            Whop Digital App Marketplace
+            Nexus Terminal — Sample Catalog
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight leading-tight">
-            Unlock Elite Access Passes, Signals & SaaS.
+            One terminal for your Whop storefront and members.
           </h1>
 
           <p className="text-slate-300 text-sm sm:text-base leading-relaxed">
-            Browse verified digital access passes, institutional trading signals, interactive video courses, and custom Whop embedded app widgets.
+            Nexus Terminal presents your products, member passes, and embedded member apps in one place. The catalog below ships as clearly labeled sample templates — replace them with your own Whop products to go live.
           </p>
 
           <div className="flex flex-wrap items-center gap-3 pt-2 text-xs text-slate-300">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 font-bold">
-              <span>⚡ 7-Day Free Trial ($0 Today) Available</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/30 text-amber-300 font-bold">
-              <span>🎁 First 50 Reviewers Get FREE Lifetime Access (34 Spots Left!)</span>
-            </div>
             <div className="flex items-center gap-1.5">
               <ShieldCheck className="w-4 h-4 text-emerald-400" />
-              <span>Instant Key Delivery</span>
+              <span>Access synced with Whop memberships</span>
+            </div>
+            <div className="flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-emerald-400" />
+              <span>Checkout stays on Whop — no card data in this app</span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Limited Time Offer Countdown Timer Banner */}
-      <OfferCountdownTimer
-        variant="card"
-        title="7-DAY FREE TRIAL & FREE LIFETIME ACCESS PROMO"
-        subtitle="Claim your 7-day $0 trial or write a review for lifetime access before timer expires:"
-        darkMode={darkMode}
-      />
+      {/* Sample catalog notice */}
+      {products.some((prod) => prod.isSample) && (
+        <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-xs sm:text-sm text-amber-600 dark:text-amber-300">
+          <strong>Sample catalog:</strong> these are templates showing what you can sell with Nexus Terminal. They have no reviews, no member counts, and no live Whop plans — checkout stays disabled until you replace them with your own products and attach real Whop plan IDs.
+        </div>
+      )}
 
       {/* Quick "How to Use" Expandable Helper */}
       <div className={`p-4 rounded-2xl border transition-all ${
@@ -93,7 +89,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
         >
           <div className="flex items-center gap-2">
             <HelpCircle className="w-4 h-4 text-indigo-500" />
-            <span>How to Use Marketplace & Test Purchases</span>
+            <span>How to Use the Marketplace</span>
           </div>
           <div className="flex items-center gap-1">
             <span className="text-[11px] text-slate-400 font-normal">{showGuide ? 'Hide Guide' : 'Show Instructions'}</span>
@@ -107,7 +103,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
               <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
               <div>
                 <strong className="text-slate-900 dark:text-white block mb-0.5">Inspect & Read Reviews</strong>
-                Click any pass card to open details, inspect features, view star distribution, and read verified member reviews.
+                Click any product card to open details and inspect its features and plans. Reviews appear only when real buyers leave them.
               </div>
             </div>
 
@@ -115,7 +111,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
               <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">2</span>
               <div>
                 <strong className="text-slate-900 dark:text-white block mb-0.5">Test Instant Checkout</strong>
-                Click "Unlock Pass with Whop", select your tier, try promo codes (<code className="text-indigo-500 font-mono">WHOP2026</code>), and activate pass.
+                On a live product, click "Unlock Pass with Whop" and select a plan. Checkout opens on Whop only when a real Whop plan ID is configured — sample templates keep checkout disabled.
               </div>
             </div>
 
@@ -123,7 +119,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
               <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">3</span>
               <div>
                 <strong className="text-slate-900 dark:text-white block mb-0.5">Launch Embedded Apps</strong>
-                Once unlocked, visit <strong className="text-amber-400">My Passes</strong> to open live TradingView, Discord, or Video Vault micro-apps!
+                Once a real purchase is verified by Whop, the pass appears under <strong className="text-amber-400">My Passes</strong>, where the member opens their course, lounge, license, or vault app.
               </div>
             </div>
           </div>
@@ -156,7 +152,7 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
           <h2 className={`text-xl font-bold tracking-tight ${darkMode ? 'text-white' : 'text-slate-900'}`}>
             Featured Access Passes ({filteredProducts.length})
           </h2>
-          <span className="text-xs text-slate-500">Instant Access • Secure Whop Checkout</span>
+          <span className="text-xs text-slate-500">Checkout handled by Whop</span>
         </div>
 
         {filteredProducts.length === 0 ? (
@@ -237,16 +233,13 @@ export const MarketplaceView: React.FC<MarketplaceViewProps> = ({
                         </div>
                       </div>
 
-                      {/* Growth Feature Chips */}
-                      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
-                          ⚡ 7-Day Free Trial
-                        </span>
-                        <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20">
-                          🎁 Review = Free Lifetime
-                        </span>
-                        <OfferCountdownTimer variant="badge" />
-                      </div>
+                      {product.isSample && (
+                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                          <span className="px-2 py-0.5 rounded text-[10px] font-extrabold bg-amber-500/10 text-amber-600 dark:text-amber-300 border border-amber-500/20">
+                            SAMPLE TEMPLATE — NOT A LIVE OFFER
+                          </span>
+                        </div>
+                      )}
                     </div>
 
                     {/* Features list snippets */}

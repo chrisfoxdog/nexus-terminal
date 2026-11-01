@@ -32,7 +32,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   const [isRedeemOpen, setIsRedeemOpen] = useState(false);
   const [redeemKeyInput, setRedeemKeyInput] = useState('');
   const [selectedProductId, setSelectedProductId] = useState(
-    products[0]?.id || 'prod_apex_signals'
+    products[0]?.id || 'sample_course_template'
   );
   const [redeemSuccessMsg, setRedeemSuccessMsg] = useState('');
   const [redeemErrorMsg, setRedeemErrorMsg] = useState('');
@@ -91,7 +91,11 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'x-whop-user-id': 'usr_998124',
+          // TODO(production): replace this placeholder with the real
+          // Whop user identity from the Whop iframe/session before
+          // live sales — passes claimed under a shared placeholder ID
+          // are not tied to the actual buyer.
+          'x-whop-user-id': 'usr_demo_placeholder',
         },
         body: JSON.stringify({
           license_key: key,
@@ -230,7 +234,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
                   type="text"
                   value={redeemKeyInput}
                   onChange={(e) => setRedeemKeyInput(e.target.value)}
-                  placeholder="e.g. whop_live_key_88921_apex_trader"
+                  placeholder="Paste your Whop license key"
                   className={`w-full px-3.5 py-2.5 rounded-xl border text-xs font-mono focus:outline-none focus:ring-2 focus:ring-emerald-500 ${
                     darkMode
                       ? 'bg-slate-950 border-slate-800 text-white'

@@ -48,7 +48,7 @@ export default function App() {
 
   // Products state with local persistence.
   const [products, setProducts] = useState<WhopProduct[]>(() => {
-    const saved = localStorage.getItem('whop_products_catalog');
+    const saved = localStorage.getItem('nexus_products_catalog_v2');
 
     if (saved) {
       try {
@@ -67,7 +67,7 @@ export default function App() {
 
   // User access passes.
   const [userPasses, setUserPasses] = useState<AccessPass[]>(() => {
-    const saved = localStorage.getItem('whop_user_passes');
+    const saved = localStorage.getItem('nexus_user_passes_v2');
 
     if (saved) {
       try {
@@ -107,7 +107,7 @@ export default function App() {
   // Persist product catalog locally.
   useEffect(() => {
     localStorage.setItem(
-      'whop_products_catalog',
+      'nexus_products_catalog_v2',
       JSON.stringify(products)
     );
   }, [products]);
@@ -115,7 +115,7 @@ export default function App() {
   // Persist user passes locally.
   useEffect(() => {
     localStorage.setItem(
-      'whop_user_passes',
+      'nexus_user_passes_v2',
       JSON.stringify(userPasses)
     );
   }, [userPasses]);
@@ -124,11 +124,11 @@ export default function App() {
   const handleResetCatalog = () => {
     if (
       window.confirm(
-        'Reset catalog and passes back to default initial Whop marketplace data?'
+        'Reset catalog and passes back to the Nexus Terminal sample templates?'
       )
     ) {
-      localStorage.removeItem('whop_products_catalog');
-      localStorage.removeItem('whop_user_passes');
+      localStorage.removeItem('nexus_products_catalog_v2');
+      localStorage.removeItem('nexus_user_passes_v2');
 
       setProducts(INITIAL_PRODUCTS);
       setUserPasses(INITIAL_USER_PASSES);

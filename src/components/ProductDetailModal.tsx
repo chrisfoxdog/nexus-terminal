@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { WhopProduct, ProductPlan } from '../types';
-import { OfferCountdownTimer } from './OfferCountdownTimer';
 import {
   X,
   Star,
@@ -68,7 +67,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [newRating, setNewRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
-  const [reviewerName, setReviewerName] = useState('Alex Rivera');
+  const [reviewerName, setReviewerName] = useState('');
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submittedSuccess, setSubmittedSuccess] = useState(false);
@@ -375,16 +374,6 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     </button>
                   );
                 })}
-              </div>
-
-              {/* Offer */}
-              <div className="mt-4 rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-3">
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-indigo-300">
-                  <Clock size={14} />
-                  Current offer
-                </div>
-
-                <OfferCountdownTimer />
               </div>
 
               {/* Security */}

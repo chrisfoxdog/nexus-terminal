@@ -6,8 +6,8 @@ interface DevApiPlaygroundProps {
 }
 
 export const DevApiPlayground: React.FC<DevApiPlaygroundProps> = ({ darkMode }) => {
-  const [testKey, setTestKey] = useState('whop_live_key_998124_apex_vip_trader');
-  const [testProductId, setTestProductId] = useState('prod_apex_signals');
+  const [testKey, setTestKey] = useState('');
+  const [testProductId, setTestProductId] = useState('sample_software_template');
   const [isLoading, setIsLoading] = useState(false);
   const [apiResponse, setApiResponse] = useState<any>(null);
   const [httpStatus, setHttpStatus] = useState<number | null>(null);
@@ -128,7 +128,7 @@ validate_whop_license("${testKey}")`;
           event_type: selectedEventType,
           user_id: 'usr_whop_77812',
           membership_id: 'mem_live_99214',
-          product_id: testProductId || 'prod_apex_signals',
+          product_id: testProductId || 'sample_software_template',
         }),
       });
 
@@ -209,7 +209,7 @@ validate_whop_license("${testKey}")`;
               <span className="w-5 h-5 rounded-full bg-purple-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">1</span>
               <div>
                 <strong className="text-white block mb-0.5">Enter Test License Key</strong>
-                Paste any key (e.g. <code className="text-purple-300 font-mono">whop_live_key_998124_apex_vip_trader</code>) or select a product ID.
+                Paste any key (e.g. <code className="text-purple-300 font-mono">whop_live_key_…</code>) or select a product ID.
               </div>
             </div>
 
@@ -250,7 +250,7 @@ validate_whop_license("${testKey}")`;
                 type="text"
                 value={testKey}
                 onChange={(e) => setTestKey(e.target.value)}
-                placeholder="e.g. whop_live_key_998124_apex_vip_trader"
+                placeholder="e.g. whop_live_key_…"
                 className={`w-full px-3.5 py-2 rounded-xl border font-mono ${
                   darkMode ? 'bg-black border-zinc-800 text-amber-400' : 'bg-zinc-50 border-zinc-200 text-zinc-900'
                 } focus:outline-none focus:border-[#FF6243]`}
@@ -266,7 +266,7 @@ validate_whop_license("${testKey}")`;
                 </button>
                 <span>•</span>
                 <button
-                  onClick={() => setTestKey('whop_live_key_998124_apex_vip_trader')}
+                  onClick={() => setTestKey('whop_live_key_…')}
                   className="text-amber-400 underline hover:text-amber-300"
                 >
                   Store Key
@@ -467,12 +467,12 @@ validate_whop_license("${testKey}")`;
 
             <div className="p-3 rounded-xl border bg-purple-500/10 border-purple-500/30 text-purple-300 flex items-center justify-between">
               <span className="font-semibold">Whop App ID</span>
-              <span className="font-bold font-mono text-[11px]">{configStatus.whop_app_id || 'app_gzeMFmZKMcOdbA'}</span>
+              <span className="font-bold font-mono text-[11px]">{configStatus.whop_app_id || 'Not configured'}</span>
             </div>
 
             <div className="p-3 rounded-xl border bg-blue-500/10 border-blue-500/30 text-blue-300 flex items-center justify-between">
               <span className="font-semibold">Whop Company</span>
-              <span className="font-bold font-mono text-[11px]">{configStatus.whop_company_id || 'biz_DcAqjfC3rHB0s1'}</span>
+              <span className="font-bold font-mono text-[11px]">{configStatus.whop_company_id || 'Not configured'}</span>
             </div>
           </div>
         )}

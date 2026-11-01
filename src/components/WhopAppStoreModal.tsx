@@ -45,31 +45,29 @@ export const WhopAppStoreModal: React.FC<WhopAppStoreModalProps> = ({
   const currentOrigin =
     typeof window !== 'undefined'
       ? window.location.origin
-      : 'https://ais-pre-xndhbaojvi4xamux5py45l-141760590254.us-east5.run.app';
+      : '';
   
-  const baseAppUrl = currentOrigin.includes('localhost')
-    ? 'https://ais-pre-xndhbaojvi4xamux5py45l-141760590254.us-east5.run.app'
-    : currentOrigin;
+  const baseAppUrl = currentOrigin;
 
   // Exact Whop Dashboard Wording & URLs
   const whopFields = {
-    appName: 'Nexus Hub & Member Terminal',
-    tagline: 'All-in-one membership management, digital content delivery, and live member signals for Whop creators.',
+    appName: 'Nexus Terminal — Creator Terminal for Whop',
+    tagline: 'Storefront, member passes, license validation, and webhook automation for Whop creators.',
     category: 'Creator Tools & Software',
     baseAppUrl: baseAppUrl,
     customerViewUrl: `${baseAppUrl}/?view=passes&embedded=true`,
     adminViewUrl: `${baseAppUrl}/?view=creator&embedded=true`,
     webhookUrl: `${baseAppUrl}/api/v1/webhooks/receive`,
     recommendedPrice: '$29 / month',
-    description: `### Nexus Hub & Member Terminal for Whop
+    description: `### Nexus Terminal for Whop — by Elite Software Studio
 
-Nexus is a complete, production-grade Whop app designed for communities, course creators, and trading hubs.
+Nexus Terminal is a Whop app for creators who sell digital products, courses, communities, and software licenses.
 
 #### What it includes:
-- **Customer View (Member Portal):** Real-time signal terminal, video academy player, community chat, and secure digital vault access.
-- **Admin View (Creator Studio):** Live revenue analytics, MRR tracking, active member CRM, AI marketing generator, and license management.
-- **Automated Webhooks:** Instant access provisioning on purchase and immediate revocation on cancellation or refund.
-- **Server Verification:** HMAC-SHA256 authenticated webhook processing with zero exposed secrets.`,
+- **Customer View (Member Portal):** Your product catalog, member passes, course player, community lounge, and download vault.
+- **Admin View (Creator Studio):** Product and pass management, analytics dashboards, AI copy generator, license management, and webhook testing tools.
+- **Automated Webhooks:** Access is provisioned when a membership becomes valid and revoked when it ends or is cancelled.
+- **Server Verification:** Webhooks are signature-verified on the server; API keys and secrets are never exposed to the browser.`,
   };
 
   const handleCopy = (key: string, text: string) => {
@@ -301,12 +299,12 @@ Nexus is a complete, production-grade Whop app designed for communities, course 
                 <div className={`p-4 rounded-xl border space-y-2 ${darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="flex items-center justify-between">
                     <label className="text-[11px] font-bold text-slate-400 uppercase">Whop App ID</label>
-                    <span className="text-[10px] text-emerald-400 font-bold">Configured Active</span>
+                    <span className="text-[10px] text-slate-500">From your Whop dashboard</span>
                   </div>
                   <div className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900 border border-purple-800/50 text-xs font-mono font-bold text-purple-300">
-                    <span>app_gzeMFmZKMcOdbA</span>
+                    <span>Set via WHOP_APP_ID in your environment</span>
                     <button
-                      onClick={() => handleCopy('appId', 'app_gzeMFmZKMcOdbA')}
+                      onClick={() => handleCopy('appId', 'WHOP_APP_ID')}
                       className="text-purple-400 hover:text-white p-1"
                       title="Copy Whop App ID"
                     >
@@ -728,7 +726,7 @@ Nexus is a complete, production-grade Whop app designed for communities, course 
                   <div className="text-xs font-bold text-slate-400">Starter Plan</div>
                   <div className="text-2xl font-black text-white mt-1">Free</div>
                   <p className="text-xs text-slate-400 mt-2">
-                    Let creators install your app for free up to 25 members to gain initial reviews and adoption.
+                    Suggested starter tier: let creators install the app free while they set up their storefront and passes.
                   </p>
                 </div>
 
@@ -739,7 +737,7 @@ Nexus is a complete, production-grade Whop app designed for communities, course 
                   <div className="text-xs font-bold text-indigo-400">Pro Creator</div>
                   <div className="text-2xl font-black text-white mt-1">$29 <span className="text-xs text-slate-400 font-normal">/ month</span></div>
                   <p className="text-xs text-slate-300 mt-2">
-                    Charge creators $29/mo for unlimited community members, automated signals, and AI assistant.
+                    Suggested price for the full terminal: storefront, member passes, license validation, webhook automation, and AI copy tools. Final pricing is set by you in Whop — nothing is charged from this app.
                   </p>
                 </div>
 
@@ -747,7 +745,7 @@ Nexus is a complete, production-grade Whop app designed for communities, course 
                   <div className="text-xs font-bold text-purple-400">Enterprise Hub</div>
                   <div className="text-2xl font-black text-white mt-1">$79 <span className="text-xs text-slate-400 font-normal">/ month</span></div>
                   <p className="text-xs text-slate-400 mt-2">
-                    For high-volume trading floors and masterminds requiring dedicated support and custom branding.
+                    Optional higher tier for larger communities that need dedicated support and custom branding.
                   </p>
                 </div>
               </div>
@@ -865,10 +863,10 @@ Nexus is a complete, production-grade Whop app designed for communities, course 
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 flex items-start justify-between gap-2">
                     <p className="leading-relaxed">
-                      Subscribes to live purchase, renewal, and cancellation events to guarantee instant database synchronization.
+                      Subscribes to purchase, renewal, and cancellation events so the pass database stays in sync with Whop.
                     </p>
                     <button
-                      onClick={() => handleCopy('perm_web_manage', 'Subscribes to live purchase, renewal, and cancellation events to guarantee instant database synchronization.')}
+                      onClick={() => handleCopy('perm_web_manage', 'Subscribes to purchase, renewal, and cancellation events so the pass database stays in sync with Whop.')}
                       className="text-slate-400 hover:text-white p-1 shrink-0"
                       title="Copy Justification"
                     >

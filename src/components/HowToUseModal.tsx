@@ -58,7 +58,7 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
   const tabs = [
     { id: 'overview' as FeatureTab, label: 'Platform Overview', icon: BookOpen },
     { id: 'marketplace' as FeatureTab, label: '1. Marketplace & Search', icon: ShoppingBag },
-    { id: 'reviews' as FeatureTab, label: '2. Ratings & Verified Reviews', icon: Star },
+    { id: 'reviews' as FeatureTab, label: '2. Ratings & Reviews', icon: Star },
     { id: 'checkout' as FeatureTab, label: '3. Checkout & Promo Codes', icon: CreditCard },
     { id: 'passes' as FeatureTab, label: '4. Pass Vault & Micro-Apps', icon: Key },
     { id: 'analytics' as FeatureTab, label: '5. Creator Recharts Analytics', icon: TrendingUp },
@@ -136,7 +136,7 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white">Whop Business Digital Ecosystem</h3>
                   <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed">
                     This platform mirrors the full modern Whop digital marketplace experience. You can act as a 
-                    <strong className="text-indigo-500"> Buyer</strong> (discovering products, reading verified reviews, purchasing access passes, launching embedded micro-apps) or a 
+                    <strong className="text-indigo-500"> Buyer</strong> (discovering products, reading reviews, purchasing access passes, launching embedded member apps) or a 
                     <strong className="text-emerald-500"> Creator/Developer</strong> (analyzing sales performance with Recharts, managing affiliate splits, issuing promo codes, generating AI copy, and testing webhooks).
                   </p>
                 </div>
@@ -147,7 +147,7 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                       <ShoppingBag className="w-4 h-4" /> Buyer Journey
                     </div>
                     <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
-                      Discover trading indicators, Discord pass memberships, software, & video courses. Read verified reviews, apply promo codes, and launch live apps.
+                      Discover the creator's products — courses, communities, software, and downloads. Read buyer reviews, and launch member apps from your passes.
                     </p>
                   </div>
 
@@ -230,9 +230,9 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
               <div className="space-y-6 animate-fade-in">
                 <div className="space-y-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-indigo-500">Feature Walkthrough</span>
-                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">2. Ratings & Verified Review System</h3>
+                  <h3 className="text-2xl font-black text-slate-900 dark:text-white">2. Ratings & Review System</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    How verified pass holders leave star ratings, written feedback, and vote on reviews.
+                    How buyers leave star ratings and written feedback on products they have opened.
                   </p>
                 </div>
 
@@ -256,7 +256,7 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                       <li>Click the <strong>"Write a Review"</strong> button.</li>
                       <li>Hover and click over the 5 star icons to set your rating.</li>
                       <li>If you haven't bought the pass yet, click <strong>"[Enable Test Buyer Mode]"</strong> to simulate verification.</li>
-                      <li>Type your review text and click <strong>"Submit Verified Review"</strong>.</li>
+                      <li>Type your review text and click <strong>"Submit Review"</strong>.</li>
                     </ol>
                   </div>
 
@@ -288,7 +288,7 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                   <span className="text-xs font-bold uppercase tracking-wider text-indigo-500">Feature Walkthrough</span>
                   <h3 className="text-2xl font-black text-slate-900 dark:text-white">3. Instant Checkout & Promo Codes</h3>
                   <p className="text-xs text-slate-500 dark:text-slate-400">
-                    How pass plan selection, order bumps, promo discounts, and instant license generation work.
+                    How plan selection, Whop checkout, promo codes, and pass activation work.
                   </p>
                 </div>
 
@@ -296,31 +296,20 @@ export const HowToUseModal: React.FC<HowToUseModalProps> = ({
                   <div className={`p-4 rounded-2xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'} space-y-2`}>
                     <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
                       <Tag className="w-4 h-4 text-indigo-500" />
-                      Applying Test Promo Codes
+                      Promo Codes
                     </h4>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-2">
-                      In the checkout modal, enter any of these active test codes to calculate instant discounts:
+                      Promo codes are created by the creator in their Whop dashboard and are applied on the Whop checkout page. Nexus Terminal does not invent or pre-load discount codes — if a creator offers one, they will share it with you directly.
                     </p>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 font-mono text-[11px]">
-                      <div className="p-2 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-600 dark:text-indigo-400 font-bold text-center">
-                        WHOP2026 (20% OFF)
-                      </div>
-                      <div className="p-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold text-center">
-                        VIP50 ($50 OFF)
-                      </div>
-                      <div className="p-2 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 font-bold text-center">
-                        SUMMER2026 (30% OFF)
-                      </div>
-                    </div>
                   </div>
 
                   <div className={`p-4 rounded-2xl border ${darkMode ? 'bg-slate-950 border-slate-800' : 'bg-slate-50 border-slate-200'} space-y-2`}>
                     <h4 className="font-bold text-sm text-slate-900 dark:text-white flex items-center gap-2">
                       <Zap className="w-4 h-4 text-amber-500" />
-                      Order Bumps & One-Click Activation
+                      Checkout & Activation
                     </h4>
                     <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-                      Check the <strong>"VIP 1-on-1 Onboarding Call"</strong> order bump checkbox to add an extra service to your pass. Click <strong>"Complete Order & Activate Pass"</strong> to simulate instant credit card payment and receive your unique license key.
+                      Checkout always happens on Whop — this app never takes card details. After Whop verifies the purchase, the webhook receiver activates the buyer's pass and any license key here automatically.
                     </p>
                   </div>
                 </div>

@@ -15,6 +15,10 @@ export type AppIframeType =
 
 export interface ProductPlan {
   id: string;
+  // Real Whop plan ID (plan_...) for this plan, set only after the plan
+  // exists in the creator's Whop dashboard. Checkout stays disabled
+  // while this is unset — sample/example plans must not carry one.
+  whopPlanId?: string;
   name: string;
   price: number;
   interval: 'monthly' | 'yearly' | 'one_time';
@@ -24,6 +28,9 @@ export interface ProductPlan {
 
 export interface WhopProduct {
   id: string;
+  // True for the shipped sample templates. Sample products must have
+  // no reviews, no member counts, and no live Whop plan attached.
+  isSample?: boolean;
   title: string;
   creatorName: string;
   creatorAvatar: string;

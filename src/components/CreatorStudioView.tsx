@@ -91,18 +91,18 @@ const CONVERSION_FUNNEL_DATA = [
 ];
 
 const PRODUCT_SALES_BREAKDOWN = [
-  { name: 'Apex Algo VIP', revenue: 22400, members: 480, color: '#4f46e5' },
-  { name: 'Quant Crypto Alpha', revenue: 11200, members: 350, color: '#0284c7' },
-  { name: 'SaaS Starter Kit', revenue: 6450, members: 290, color: '#059669' },
-  { name: 'Notion Vault', revenue: 2800, members: 164, color: '#d97706' },
+  { name: 'Sample Course', revenue: 22400, members: 480, color: '#4f46e5' },
+  { name: 'Sample Community', revenue: 11200, members: 350, color: '#0284c7' },
+  { name: 'Sample License', revenue: 6450, members: 290, color: '#059669' },
+  { name: 'Sample Vault', revenue: 2800, members: 164, color: '#d97706' },
 ];
 
 const RECENT_TRANSACTIONS = [
-  { id: 'tx_101', member: 'Jordan Davis', avatar: 'JD', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300', plan: 'Elite Trading Hub', amount: 199.00, status: 'PAID' },
-  { id: 'tx_102', member: 'Sarah Chen', avatar: 'SC', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300', plan: 'Basic Mentorship', amount: 49.99, status: 'PAID' },
-  { id: 'tx_103', member: 'Marcus Bell', avatar: 'MB', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300', plan: 'Elite Trading Hub', amount: 199.00, status: 'PENDING' },
-  { id: 'tx_104', member: 'Elena Rostova', avatar: 'ER', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300', plan: 'Quant Crypto Alpha', amount: 149.00, status: 'PAID' },
-  { id: 'tx_105', member: 'David Miller', avatar: 'DM', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300', plan: 'SaaS Starter Kit', amount: 89.00, status: 'PAID' },
+  { id: 'tx_101', member: 'Sample Member A', avatar: 'SA', color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300', plan: 'Sample Course', amount: 99.00, status: 'PAID' },
+  { id: 'tx_102', member: 'Sample Member B', avatar: 'SB', color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300', plan: 'Sample Community', amount: 29.00, status: 'PAID' },
+  { id: 'tx_103', member: 'Sample Member C', avatar: 'SC', color: 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300', plan: 'Sample License', amount: 19.00, status: 'PENDING' },
+  { id: 'tx_104', member: 'Sample Member D', avatar: 'SD', color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/50 dark:text-amber-300', plan: 'Sample Vault', amount: 49.00, status: 'PAID' },
+  { id: 'tx_105', member: 'Sample Member E', avatar: 'SE', color: 'bg-sky-100 text-sky-700 dark:bg-sky-900/50 dark:text-sky-300', plan: 'Sample Course', amount: 99.00, status: 'PAID' },
 ];
 
 export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
@@ -117,9 +117,9 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
   const [showStudioGuide, setShowStudioGuide] = useState(false);
 
   // Gemini AI Assistant Form State
-  const [productType, setProductType] = useState('Trading Signals & Indicators');
-  const [productTitle, setProductTitle] = useState('Apex Algo VIP');
-  const [targetAudience, setTargetAudience] = useState('Crypto & Options Traders');
+  const [productType, setProductType] = useState('Digital Course');
+  const [productTitle, setProductTitle] = useState('My New Product');
+  const [targetAudience, setTargetAudience] = useState('My audience');
   const [tone, setTone] = useState('Authoritative & High-Energy');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
   const [aiResult, setAiResult] = useState<any>(null);
@@ -135,26 +135,18 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
   const [newTagline, setNewTagline] = useState('');
   const [newPrice, setNewPrice] = useState('49');
 
-  // Payout Modal State
-  const [showPayoutModal, setShowPayoutModal] = useState(false);
-  const [isPayoutProcessing, setIsPayoutProcessing] = useState(false);
-  const [payoutSuccessMessage, setPayoutSuccessMessage] = useState('');
 
   // Affiliate State
-  const [affiliatePartners, setAffiliatePartners] = useState([
-    { id: 'aff_1', name: 'Alex Rivera', handle: '@alex_rivera', clicks: 1420, conversions: 128, revenue: 24500, commissionRate: 25, payout: 6125 },
-    { id: 'aff_2', name: 'Crypto Daily', handle: '@cryptodaily', clicks: 2890, conversions: 210, revenue: 31200, commissionRate: 20, payout: 6240 },
-    { id: 'aff_3', name: 'SaaS Founder Hub', handle: '@saashub', clicks: 840, conversions: 74, revenue: 6580, commissionRate: 30, payout: 1974 },
-  ]);
+  // Starts empty: affiliate partners are added by the creator.
+  // Nexus Terminal does not ship invented partners or sales figures.
+  const [affiliatePartners, setAffiliatePartners] = useState<any[]>([]);
   const [newAffiliateName, setNewAffiliateName] = useState('');
   const [newAffiliateRate, setNewAffiliateRate] = useState('25');
 
   // Coupon State
-  const [coupons, setCoupons] = useState([
-    { code: 'WHOP2026', discount: '20% OFF', type: 'percentage', value: 20, uses: 342, status: 'Active' },
-    { code: 'VIP50', discount: '50% OFF', type: 'percentage', value: 50, uses: 89, status: 'Active' },
-    { code: 'SUMMER2026', discount: '30% OFF', type: 'percentage', value: 30, uses: 120, status: 'Active' },
-  ]);
+  // Starts empty: promo codes are created by the creator and only
+  // take effect once they also exist in the creator's Whop dashboard.
+  const [coupons, setCoupons] = useState<any[]>([]);
   const [newCouponCode, setNewCouponCode] = useState('');
   const [newCouponValue, setNewCouponValue] = useState('25');
 
@@ -194,7 +186,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
         body: JSON.stringify({
           event_type: webhookEvent,
           membership_id: `mem_${Math.random().toString(36).substring(2, 8)}`,
-          user_id: 'usr_998124',
+          user_id: 'usr_example',
         }),
       });
       const data = await res.json();
@@ -246,12 +238,12 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
     const newProd: WhopProduct = {
       id: `prod_${Date.now()}`,
       title: newTitle,
-      creatorName: 'Alex Rivera (You)',
+      creatorName: 'You (Creator)',
       creatorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80',
       category: 'saas',
-      rating: 5.0,
-      reviewCount: 1,
-      totalMembers: 1,
+      rating: 0,
+      reviewCount: 0,
+      totalMembers: 0,
       coverImage: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
       icon: '🚀',
       badge: 'NEW APP',
@@ -260,8 +252,8 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
       plans: [
         { id: `plan_${Date.now()}`, name: 'Monthly Access', price: Number(newPrice), interval: 'monthly', description: 'Billed monthly' }
       ],
-      features: ['Whop License Key integration', 'Discord Role auto-assign', 'Live support access'],
-      perks: { hasAppWidget: true, appType: 'signals' },
+      features: ['Whop license key issued with each verified pass', 'Member portal app view', 'Access synced to Whop membership status'],
+      perks: { hasAppWidget: true, appType: 'chat' },
       sampleReviews: []
     };
 
@@ -284,7 +276,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
             Creator Studio & Analytics
           </h1>
           <p className="text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-            Real-time sales charts, member sign-up trends, Gemini AI copy generator, and Whop Webhooks.
+            Analytics layout with sample data, member sign-up trends, Gemini AI copy generator, and Whop webhooks.
           </p>
         </div>
 
@@ -344,8 +336,8 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
             <div className="flex items-start gap-2">
               <span className="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">4</span>
               <div>
-                <strong className="text-slate-900 dark:text-white block mb-0.5">Simulate ACH Payouts</strong>
-                Click <strong>"Withdraw Earnings"</strong> in the stats bar to simulate instant direct deposit payouts to your bank account.
+                <strong className="text-slate-900 dark:text-white block mb-0.5">Payouts Stay on Whop</strong>
+                Nexus Terminal never holds or moves money. Payments, balances, and payouts are handled in your Whop dashboard.
               </div>
             </div>
           </div>
@@ -356,38 +348,30 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div className={`p-5 rounded-2xl border shadow-sm ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Monthly Revenue</p>
-          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>$42,850.12</h3>
+          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>—</h3>
           <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2 flex items-center gap-1">
-            <span>↑ 12.5% from last month</span>
+            <span>Your real revenue lives in your Whop dashboard</span>
           </p>
         </div>
 
         <div className={`p-5 rounded-2xl border shadow-sm ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Active Members</p>
-          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>1,284</h3>
+          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>—</h3>
           <p className="text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2 flex items-center gap-1">
-            <span>↑ 48 new today</span>
+            <span>Real counts come from your Whop memberships</span>
           </p>
         </div>
 
         <div className={`p-5 rounded-2xl border shadow-sm ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
           <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Churn Rate</p>
-          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>2.4%</h3>
-          <p className="text-xs text-slate-400 font-medium mt-2">Industry avg: 4.8%</p>
+          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>—</h3>
+          <p className="text-xs text-slate-400 font-medium mt-2">Not calculated by Nexus Terminal</p>
         </div>
 
         <div className={`p-5 rounded-2xl border shadow-sm ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
-          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Pending Payout</p>
-          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>$8,122.00</h3>
-          <button
-            onClick={() => {
-              setPayoutSuccessMessage('');
-              setShowPayoutModal(true);
-            }}
-            className="text-xs text-indigo-600 dark:text-indigo-400 font-bold mt-2 uppercase tracking-wider flex items-center gap-1 hover:underline cursor-pointer"
-          >
-            Withdraw now →
-          </button>
+          <p className="text-sm text-slate-500 dark:text-slate-400 font-medium">Payouts</p>
+          <h3 className={`text-2xl font-bold mt-1 ${darkMode ? 'text-white' : 'text-slate-900'}`}>Whop</h3>
+          <p className="text-xs text-slate-400 font-medium mt-2">Payments and payouts are handled by Whop. Nexus Terminal never holds or moves funds.</p>
         </div>
       </div>
 
@@ -402,7 +386,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
           }`}
         >
           <BarChart3 className="w-4 h-4 text-white" />
-          Creator Analytics & Recharts
+          Creator Analytics (Sample Data)
         </button>
 
         <button
@@ -467,7 +451,10 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
       {/* SUB TAB: CREATOR ANALYTICS (RECHARTS VISUALIZATIONS) */}
       {activeSubTab === 'analytics' && (
         <div className="space-y-6">
-          {/* Executive Analytics & Settlement Showcase Card */}
+          <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 text-xs sm:text-sm text-amber-600 dark:text-amber-300">
+            <strong>Sample data:</strong> every chart and figure in this analytics view is demo data that ships with Nexus Terminal to show the layout. It is not your store's performance. Your real revenue, member, and payout figures are in your Whop dashboard.
+          </div>
+          {/* Analytics Showcase Card (sample data) */}
           <div className="relative rounded-2xl overflow-hidden border border-slate-800 group shadow-2xl">
             <img
               src="/creator_crm_pro.jpg"
@@ -479,18 +466,18 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
               <div className="flex flex-wrap items-center gap-2 mb-2">
                 <span className="px-2.5 py-0.5 rounded-md bg-indigo-500/20 text-indigo-400 font-extrabold text-[10px] border border-indigo-500/30 flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-                  WHOP SETTLEMENT & CRM ENGINE
+                  CREATOR STUDIO ANALYTICS
                 </span>
                 <span className="px-2.5 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 font-bold text-[10px] border border-emerald-500/30">
-                  AUTO-SETTLEMENT ON
+                  SAMPLE DATA PREVIEW
                 </span>
                 <span className="px-2.5 py-0.5 rounded-md bg-amber-500/20 text-amber-300 font-bold text-[10px] border border-amber-500/30">
-                  GLOBAL 135+ CURRENCIES
+                  DEMO FIGURES — NOT YOUR SALES
                 </span>
               </div>
-              <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">Whop Enterprise Creator Operating System</h3>
+              <h3 className="text-lg sm:text-xl font-black text-white tracking-tight">Creator Studio Analytics (Sample Data)</h3>
               <p className="text-xs text-slate-300 mt-1 max-w-2xl">
-                Real-time Cohort Retention, Churn Analytics, Automated 1099/VAT compliance, and Global Merchant Payout Ledger.
+                This dashboard shows the analytics layout with demo figures. Nexus Terminal does not process payouts or tax compliance — payments, settlements, and taxes stay with Whop. Your real figures live in your Whop dashboard.
               </p>
             </div>
           </div>
@@ -826,7 +813,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
             {/* Sales History Table */}
             <div className={`col-span-2 rounded-2xl border shadow-sm flex flex-col overflow-hidden ${darkMode ? 'bg-slate-900 border-slate-800' : 'bg-white border-slate-200'}`}>
               <div className="p-5 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-                <h4 className="font-bold text-slate-800 dark:text-white text-base">Recent Sales Transactions</h4>
+                <h4 className="font-bold text-slate-800 dark:text-white text-base">Recent Sales Transactions (Sample Data)</h4>
                 <button className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">
                   View all history →
                 </button>
@@ -900,7 +887,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
               <input
                 type="text"
-                placeholder="Partner Name (e.g. Alex Rivera)"
+                placeholder="Partner Name"
                 value={newAffiliateName}
                 onChange={(e) => setNewAffiliateName(e.target.value)}
                 className={`px-3 py-2 rounded-lg border ${darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200'}`}
@@ -1315,7 +1302,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
                   required
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="e.g. Apex Options Signals"
+                  placeholder="e.g. My Video Course"
                   className={`w-full px-3.5 py-2 rounded-lg border ${
                     darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200'
                   }`}
@@ -1328,7 +1315,7 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
                   type="text"
                   value={newTagline}
                   onChange={(e) => setNewTagline(e.target.value)}
-                  placeholder="Institutional signals & daily updates"
+                  placeholder="e.g. Weekly lessons & member updates"
                   className={`w-full px-3.5 py-2 rounded-lg border ${
                     darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200'
                   }`}
@@ -1368,102 +1355,6 @@ export const CreatorStudioView: React.FC<CreatorStudioViewProps> = ({
         </div>
       )}
 
-      {/* INSTANT PAYOUT WITHDRAWAL MODAL */}
-      {showPayoutModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-fade-in">
-          <div className={`w-full max-w-md p-6 sm:p-8 rounded-3xl border shadow-2xl space-y-5 ${
-            darkMode ? 'bg-slate-900 border-slate-800 text-white' : 'bg-white border-slate-200 text-slate-900'
-          }`}>
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
-              <h3 className="font-bold text-base flex items-center gap-2">
-                <DollarSign className="w-5 h-5 text-emerald-500" />
-                Whop Creator Payout Withdrawal
-              </h3>
-              <button
-                onClick={() => setShowPayoutModal(false)}
-                className="text-slate-400 hover:text-white p-1 rounded-full hover:bg-slate-800"
-              >
-                ✕
-              </button>
-            </div>
-
-            {!payoutSuccessMessage ? (
-              <div className="space-y-4 text-xs">
-                <div className="p-4 rounded-2xl bg-indigo-50 dark:bg-slate-950 border border-indigo-100 dark:border-slate-800 space-y-1">
-                  <div className="text-slate-500 dark:text-slate-400">Available Whop Creator Balance</div>
-                  <div className="text-2xl font-black text-indigo-600 dark:text-indigo-400">$8,122.00</div>
-                  <div className="text-[11px] text-emerald-600 dark:text-emerald-400 font-semibold">
-                    ✓ Next scheduled payout window: Today (Same Day Deposit)
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-500 dark:text-slate-400">Payout Destination Bank / Wallet</label>
-                  <select className={`w-full px-3 py-2 rounded-xl border ${
-                    darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                  }`}>
-                    <option>Chase Bank Direct ACH (•••• 8821)</option>
-                    <option>Stripe Connect Express Wallet</option>
-                    <option>Coinbase USDC Crypto Transfer</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1.5">
-                  <label className="font-semibold text-slate-500 dark:text-slate-400">Withdrawal Amount ($ USD)</label>
-                  <input
-                    type="number"
-                    defaultValue={8122}
-                    className={`w-full px-3 py-2 rounded-xl border font-bold text-sm ${
-                      darkMode ? 'bg-slate-950 border-slate-800 text-white' : 'bg-slate-50 border-slate-200 text-slate-900'
-                    }`}
-                  />
-                </div>
-
-                <div className="pt-2">
-                  <button
-                    disabled={isPayoutProcessing}
-                    onClick={() => {
-                      setIsPayoutProcessing(true);
-                      setTimeout(() => {
-                        setIsPayoutProcessing(false);
-                        setPayoutSuccessMessage('Payout of $8,122.00 successfully transferred to Chase Bank (•••• 8821). Reference ID: WHP_ACH_99214.');
-                      }, 1200);
-                    }}
-                    className="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-md flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-                  >
-                    {isPayoutProcessing ? (
-                      <>
-                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                        <span>Processing ACH Transfer...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Zap className="w-4 h-4 fill-white" />
-                        <span>Confirm Direct Deposit ($8,122.00)</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div className="space-y-4 text-center py-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-500 flex items-center justify-center mx-auto border border-emerald-500/20">
-                  <CheckCircle2 className="w-6 h-6" />
-                </div>
-                <p className="text-xs font-semibold text-slate-700 dark:text-slate-200 leading-relaxed">
-                  {payoutSuccessMessage}
-                </p>
-                <button
-                  onClick={() => setShowPayoutModal(false)}
-                  className="w-full py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs"
-                >
-                  Done
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 };

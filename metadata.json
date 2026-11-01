@@ -1,6 +1,8 @@
 {
-  "name": "Whop Digital Marketplace & Creator Hub",
-  "description": "Production Whop marketplace, membership gating, license verification, and creator app.",
+  "name": "Nexus Terminal \u2014 Creator Terminal for Whop",
+  "description": "Nexus Terminal by Elite Software Studio: storefront, member passes, license verification, and webhook automation for Whop creators.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

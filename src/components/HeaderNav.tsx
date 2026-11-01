@@ -45,13 +45,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               className="flex items-center gap-3 text-left group focus:outline-none"
             >
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg italic shadow-sm group-hover:scale-105 transition-transform">
-                W
+                N
               </div>
               <div className="hidden sm:block">
                 <div className="flex items-center gap-1.5 font-bold tracking-tight text-lg leading-none">
-                  whop <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800">BUSINESS</span>
+                  Nexus <span className="text-xs px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 font-bold border border-indigo-200 dark:border-indigo-800">TERMINAL</span>
                 </div>
-                <span className={`text-[11px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Digital Marketplace & Studio</span>
+                <span className={`text-[11px] ${darkMode ? 'text-slate-400' : 'text-slate-500'}`}>Creator Terminal for Whop</span>
               </div>
             </button>
 
@@ -182,7 +182,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
                     ? 'bg-slate-900 border-slate-800 text-slate-400 hover:text-white'
                     : 'bg-slate-100 border-slate-200 text-slate-500 hover:text-slate-900'
                 }`}
-                title="Reset local storage data to initial Whop catalog defaults"
+                title="Reset local storage data to the sample template catalog"
               >
                 <RefreshCw className="w-4 h-4" />
               </button>
@@ -204,7 +204,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
             {/* Account Info */}
             <div className={`hidden sm:flex items-center gap-3 pl-3 border-l ${darkMode ? 'border-slate-800' : 'border-slate-200'}`}>
               <div className="hidden xl:block text-right">
-                <div className="text-xs font-semibold leading-none">Alex Rivera</div>
+                <div className="text-xs font-semibold leading-none">Your Account</div>
                 <div className="text-[10px] text-slate-500 dark:text-slate-400 mt-0.5">Owner Account</div>
               </div>
               <div className="w-9 h-9 rounded-full bg-slate-200 dark:bg-slate-800 border border-slate-300 dark:border-slate-700 overflow-hidden">

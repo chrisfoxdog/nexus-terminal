@@ -1,249 +1,180 @@
 import { WhopProduct, AccessPass, SignalAlert, CourseLesson } from '../types';
 
+// Nexus Terminal ships with SAMPLE TEMPLATE products only.
+// They show a creator what kinds of offers the terminal can present and
+// deliver (courses, communities, software licenses, download vaults).
+// They are not real offers: they have no reviews, no member counts, no
+// performance claims, and no live Whop plan attached, so checkout stays
+// disabled until the creator replaces them with their own real Whop
+// products and plans (set `whopPlanId` on a plan once it exists in Whop).
 export const INITIAL_PRODUCTS: WhopProduct[] = [
   {
-    id: 'prod_apex_signals',
-    title: 'Apex Trading Signals & VIP Pass',
-    creatorName: 'Apex Quantitative Labs',
+    isSample: true,
+    id: 'sample_course_template',
+    title: 'Sample Template — Video Course',
+    creatorName: 'Your Brand Here',
     creatorAvatar: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=150&q=80',
-    category: 'trading',
-    rating: 4.9,
-    reviewCount: 384,
-    totalMembers: 2450,
-    coverImage: '/trading_terminal_pro.jpg',
-    icon: '📈',
-    badge: '🔥 BESTSELLER',
-    shortTagline: 'Institutional crypto & stock signals powered by 84% win-rate quantitative algorithms.',
-    fullDescription: 'Gain instant access to real-time institutional buy/sell alerts, custom TradingView indicators, private Discord trading floors, and daily live market breakdown sessions hosted by top quantitative traders.',
-    plans: [
-      { id: 'plan_apex_mo', name: 'Monthly VIP Pass', price: 49, interval: 'monthly', trialDays: 3, description: '3-day free trial, cancel anytime.' },
-      { id: 'plan_apex_lifetime', name: 'Lifetime Inner Circle', price: 499, interval: 'one_time', description: 'One-time payment for permanent access.' }
-    ],
-    features: [
-      'Real-time automated Discord & Telegram push alerts',
-      'Exclusive Whop App live signal dashboard widget',
-      'Proprietary TradingView PineScript indicator script key',
-      'Daily live voice chat streams during London & NY open',
-      'Risk management spreadsheets and position sizing calculator'
-    ],
-    perks: {
-      discordServer: 'https://discord.gg/whop-apex-trading',
-      hasAppWidget: true,
-      appType: 'signals',
-      downloadFilesCount: 8
-    },
-    sampleReviews: [
-      { userName: 'Marcus T.', userAvatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100', rating: 5, comment: 'Made back my monthly fee in 2 days. The entry and stop loss zones are surgical.', date: 'Yesterday' },
-      { userName: 'Elena R.', userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100', rating: 5, comment: 'The Whop app widget embedded in my dashboard makes checking alerts super seamless!', date: '3 days ago' }
-    ]
-  },
-  {
-    id: 'prod_promptcraft_ai',
-    title: 'PromptCraft Pro & Gemini API Key Vault',
-    creatorName: 'AITools Studio',
-    creatorAvatar: 'https://images.unsplash.com/photo-1614680376593-902f749f702f?auto=format&fit=crop&w=150&q=80',
-    category: 'saas',
-    rating: 4.8,
-    reviewCount: 219,
-    totalMembers: 1820,
-    coverImage: '/digital_vault_pro.jpg',
-    icon: '🤖',
-    badge: '⚡ POPULAR SAAS',
-    shortTagline: 'Curated library of 500+ production AI prompts, custom agents & API key license validator.',
-    fullDescription: 'The ultimate AI developer toolkit for creators building automated micro-SaaS, marketing workflows, and LLM-powered apps. Includes downloadable prompt templates, Node.js boilerplates, and private Discord developer support.',
-    plans: [
-      { id: 'plan_prompt_mo', name: 'Pro Developer Pass', price: 29, interval: 'monthly', description: 'Includes continuous prompt updates and API keys.' },
-      { id: 'plan_prompt_yr', name: 'Annual Builder Pass', price: 249, interval: 'yearly', description: 'Save 30% with annual billing.' }
-    ],
-    features: [
-      '500+ battle-tested Gemini & OpenAI prompt templates',
-      'Whop SDK License Key integration code snippets',
-      'Weekly newly deployed AI agent blueprints',
-      'Direct developer Q&A channel on Discord'
-    ],
-    perks: {
-      discordServer: 'https://discord.gg/whop-promptcraft',
-      hasAppWidget: true,
-      appType: 'file_vault',
-      downloadFilesCount: 24
-    },
-    sampleReviews: [
-      { userName: 'David K.', userAvatar: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?w=100', rating: 5, comment: 'The code templates saved me at least 40 hours building my Whop custom app.', date: '5 days ago' }
-    ]
-  },
-  {
-    id: 'prod_ecom_masterclass',
-    title: 'E-Com Scaling Playbook 2026',
-    creatorName: 'GrowthX Academy',
-    creatorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
     category: 'education',
-    rating: 4.9,
-    reviewCount: 512,
-    totalMembers: 3900,
+    rating: 0,
+    reviewCount: 0,
+    totalMembers: 0,
     coverImage: '/academy_masterclass_pro.jpg',
     icon: '🎓',
-    badge: '🏆 TOP COURSE',
-    shortTagline: 'Step-by-step video masterclass on scaling e-commerce brands from $0 to $100k/mo.',
-    fullDescription: 'Comprehensive 12-module course covering winning product research, Meta & TikTok ad strategies, high-converting store funnels, supplier negotiation, and automated fulfillment systems.',
+    badge: 'SAMPLE TEMPLATE',
+    shortTagline: 'Template for selling a video course with lessons delivered inside your member portal.',
+    fullDescription: 'Replace this sample with your own course. Nexus Terminal presents your lessons in the member portal, tracks lesson progress for each pass holder, and grants or revokes access automatically from your Whop membership webhooks.',
     plans: [
-      { id: 'plan_ecom_full', name: 'Full Masterclass Access', price: 199, interval: 'one_time', description: 'Lifetime access to all video lessons & updates.' }
+      { id: 'sample_plan_course_full', name: 'Example — Full Course Access', price: 99, interval: 'one_time', description: 'Example price only. Attach your real Whop plan to enable checkout.' }
     ],
     features: [
-      '12 HD Video Modules with interactive lesson player',
-      'Downloadable supplier outreach scripts & Excel spreadsheets',
-      'Bi-weekly live Q&A webinars with 7-figure brand founders',
-      'Access to private Whop member community lounge'
+      'Lesson list with per-member progress tracking',
+      'Access granted and revoked by Whop membership webhooks',
+      'Member portal view inside Whop (embedded app view)',
+      'Replaceable sample lessons — add your own titles and summaries'
     ],
     perks: {
-      discordServer: 'https://discord.gg/whop-growthx',
       hasAppWidget: true,
       appType: 'course',
-      lessonsCount: 14
+      lessonsCount: 3
     },
-    sampleReviews: [
-      { userName: 'Sarah L.', userAvatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100', rating: 5, comment: 'Module 4 alone changed my entire Meta ads strategy. Unbelievable value!', date: '1 week ago' }
-    ]
+    sampleReviews: []
   },
   {
-    id: 'prod_edgepicks_sports',
-    title: 'EdgePicks VIP Sports Analytics',
-    creatorName: 'EdgePicks Media',
-    creatorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
-    category: 'sports',
-    rating: 4.7,
-    reviewCount: 142,
-    totalMembers: 1100,
+    isSample: true,
+    id: 'sample_community_template',
+    title: 'Sample Template — Community Access Pass',
+    creatorName: 'Your Brand Here',
+    creatorAvatar: 'https://images.unsplash.com/photo-1614680376593-902f749f702f?auto=format&fit=crop&w=150&q=80',
+    category: 'coaching',
+    rating: 0,
+    reviewCount: 0,
+    totalMembers: 0,
     coverImage: '/creator_crm_pro.jpg',
-    icon: '⚽',
-    shortTagline: 'Mathematical EV+ sports models & daily statistical predictions across NBA, NFL & Premier League.',
-    fullDescription: 'Data-driven sports betting analysis based on expected value models, player prop correlations, and line movement tracking.',
+    icon: '💬',
+    badge: 'SAMPLE TEMPLATE',
+    shortTagline: 'Template for a paid community pass with a member lounge delivered in the portal.',
+    fullDescription: 'Replace this sample with your own community offer. Nexus Terminal shows pass holders a member lounge in the portal and keeps access in sync with each member\u2019s Whop membership status.',
     plans: [
-      { id: 'plan_edge_wk', name: 'Weekly Pass', price: 19, interval: 'monthly', description: 'Billed weekly, cancel anytime.' },
-      { id: 'plan_edge_mo', name: 'Monthly VIP Pass', price: 59, interval: 'monthly', description: 'Full access to all league picks & bots.' }
+      { id: 'sample_plan_community_mo', name: 'Example — Monthly Community Pass', price: 29, interval: 'monthly', description: 'Example price only. Attach your real Whop plan to enable checkout.' }
     ],
     features: [
-      'Daily positive EV picks sent via Discord bot',
-      'Bankroll tracking spreadsheet integration',
-      'Live in-play injury & line shift notifications'
+      'Member lounge view for active pass holders',
+      'Access synced to Whop membership status via webhooks',
+      'Pass details, plan name, and renewal date shown to the member',
+      'Works alongside your existing Discord or chat tooling'
     ],
     perks: {
       hasAppWidget: true,
       appType: 'chat'
     },
-    sampleReviews: [
-      { userName: 'Brian P.', userAvatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100', rating: 5, comment: 'Consistent bankroll growth week after week.', date: '4 days ago' }
-    ]
-  }
-];
-
-export const INITIAL_USER_PASSES: AccessPass[] = [
-  {
-    id: 'pass_apex_001',
-    productId: 'prod_apex_signals',
-    productTitle: 'Apex Trading Signals & VIP Pass',
-    creatorName: 'Apex Quantitative Labs',
-    icon: '📈',
-    coverImage: '/trading_terminal_pro.jpg',
-    licenseKey: 'whop_live_key_998124_apex_vip_trader',
-    status: 'active',
-    planName: 'Monthly VIP Pass',
-    pricePaid: 49,
-    createdAt: '2026-07-10T14:20:00Z',
-    expiresAt: '2026-08-10T14:20:00Z',
-    discordConnected: true,
-    appType: 'signals'
+    sampleReviews: []
   },
   {
-    id: 'pass_ecom_002',
-    productId: 'prod_ecom_masterclass',
-    productTitle: 'E-Com Scaling Playbook 2026',
-    creatorName: 'GrowthX Academy',
-    icon: '🎓',
-    coverImage: '/academy_masterclass_pro.jpg',
-    licenseKey: 'whop_live_key_771829_ecom_master',
-    status: 'active',
-    planName: 'Full Masterclass Access',
-    pricePaid: 199,
-    createdAt: '2026-06-15T09:12:00Z',
-    expiresAt: '2099-01-01T00:00:00Z',
-    discordConnected: false,
-    appType: 'course'
+    isSample: true,
+    id: 'sample_software_template',
+    title: 'Sample Template — Software License',
+    creatorName: 'Your Brand Here',
+    creatorAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80',
+    category: 'saas',
+    rating: 0,
+    reviewCount: 0,
+    totalMembers: 0,
+    coverImage: '/digital_vault_pro.jpg',
+    icon: '🔑',
+    badge: 'SAMPLE TEMPLATE',
+    shortTagline: 'Template for selling software with a license key validated by the Nexus Terminal API.',
+    fullDescription: 'Replace this sample with your own software offer. Buyers receive a license key with their pass, and your software can validate that key against the Nexus Terminal server, which checks it with Whop before answering.',
+    plans: [
+      { id: 'sample_plan_software_mo', name: 'Example — Monthly License', price: 19, interval: 'monthly', description: 'Example price only. Attach your real Whop plan to enable checkout.' },
+      { id: 'sample_plan_software_yr', name: 'Example — Annual License', price: 190, interval: 'yearly', description: 'Example price only. Attach your real Whop plan to enable checkout.' }
+    ],
+    features: [
+      'License key issued with each verified pass',
+      'Server-side license validation endpoint (checks with Whop)',
+      'Membership validation endpoint for in-app access checks',
+      'Keys stop validating when the Whop membership ends'
+    ],
+    perks: {
+      hasAppWidget: true,
+      appType: 'license_api'
+    },
+    sampleReviews: []
+  },
+  {
+    isSample: true,
+    id: 'sample_vault_template',
+    title: 'Sample Template — Digital Download Vault',
+    creatorName: 'Your Brand Here',
+    creatorAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&q=80',
+    category: 'saas',
+    rating: 0,
+    reviewCount: 0,
+    totalMembers: 0,
+    coverImage: '/trading_terminal_pro.jpg',
+    icon: '🗂️',
+    badge: 'SAMPLE TEMPLATE',
+    shortTagline: 'Template for delivering downloadable files and resources to paying members.',
+    fullDescription: 'Replace this sample with your own download offer — templates, spreadsheets, prompt packs, design files, or resource libraries. Pass holders open the vault from their member portal; access follows their Whop membership status.',
+    plans: [
+      { id: 'sample_plan_vault_full', name: 'Example — Vault Access', price: 49, interval: 'one_time', description: 'Example price only. Attach your real Whop plan to enable checkout.' }
+    ],
+    features: [
+      'Download vault view for active pass holders',
+      'Organize files by product and plan',
+      'Access granted and revoked by Whop membership webhooks',
+      'No card data handled by the app — checkout stays on Whop'
+    ],
+    perks: {
+      hasAppWidget: true,
+      appType: 'file_vault',
+      downloadFilesCount: 0
+    },
+    sampleReviews: []
   }
 ];
 
+// No passes are seeded. Real passes are created only after a buyer's
+// Whop membership or license is verified by the server.
+export const INITIAL_USER_PASSES: AccessPass[] = [];
+
+// Example entries that only demonstrate the alert format a creator
+// could publish in a signals-style app view. They are not predictions,
+// recommendations, or performance claims.
 export const SAMPLE_SIGNALS: SignalAlert[] = [
   {
-    id: 'sig_101',
-    asset: 'BTC/USDT',
+    id: 'example_sig_1',
+    asset: 'EXAMPLE / DEMO',
     action: 'BUY / LONG',
-    entry_zone: '$91,200 - $91,600',
-    target_1: '$93,500',
-    target_2: '$95,800',
-    stop_loss: '$89,800',
-    risk_reward: '1 : 2.8',
-    reasoning: 'Holding key 4h exponential moving average support with strong spot buying volume on Coinbase.',
-    timestamp: '10 mins ago'
-  },
-  {
-    id: 'sig_102',
-    asset: 'ETH/USDT',
-    action: 'BUY / LONG',
-    entry_zone: '$3,420 - $3,450',
-    target_1: '$3,600',
-    target_2: '$3,780',
-    stop_loss: '$3,350',
-    risk_reward: '1 : 3.1',
-    reasoning: 'Breached falling wedge pattern on 1h chart. DeFi TVL inflows accelerating.',
-    timestamp: '2 hours ago'
-  },
-  {
-    id: 'sig_103',
-    asset: 'SOL/USDT',
-    action: 'SELL / SHORT',
-    entry_zone: '$218 - $222',
-    target_1: '$204',
-    target_2: '$192',
-    stop_loss: '$228',
-    risk_reward: '1 : 2.4',
-    reasoning: 'Bearish divergence at local supply channel resistant ceiling.',
-    timestamp: '5 hours ago'
+    entry_zone: 'Example format only',
+    target_1: '—',
+    target_2: '—',
+    stop_loss: '—',
+    risk_reward: '—',
+    reasoning: 'Sample entry showing how an alert is laid out in the terminal. Replace with your own content if you run a signals app — Nexus Terminal does not generate investment advice.',
+    timestamp: 'Sample'
   }
 ];
 
 export const SAMPLE_COURSE_LESSONS: CourseLesson[] = [
   {
     id: 'les_1',
-    title: '1. Foundation & Whop Marketplace Setup',
-    duration: '14:20',
-    completed: true,
-    summary: 'Learn how to construct your digital product storefront on Whop, optimize pricing plans, and link custom apps.'
+    title: '1. Welcome — How This Course Template Works',
+    duration: '—',
+    completed: false,
+    summary: 'Sample lesson. Replace this list with your own lesson titles, durations, and summaries.'
   },
   {
     id: 'les_2',
-    title: '2. Product Research: Finding Unmet $10k/mo Demand',
-    duration: '22:15',
-    completed: true,
-    summary: 'Analyzing high-converting niches in sports analytics, SaaS license tools, and private Discord hubs.'
+    title: '2. Adding Your Own Lessons',
+    duration: '—',
+    completed: false,
+    summary: 'Each lesson you add appears here for pass holders, with progress tracked per member.'
   },
   {
     id: 'les_3',
-    title: '3. Building High-Converting Sales Pages on Whop',
-    duration: '18:45',
-    completed: true,
-    summary: 'Typography, social proof, video openers, and frictionless checkout setup.'
-  },
-  {
-    id: 'les_4',
-    title: '4. Integrating Whop License API with your Software',
-    duration: '28:10',
+    title: '3. Keeping Access in Sync with Whop',
+    duration: '—',
     completed: false,
-    summary: 'Using server-side REST validation endpoints to secure your software and micro-SaaS apps.'
-  },
-  {
-    id: 'les_5',
-    title: '5. Organic TikTok & Twitter/X Growth Funnels',
-    duration: '19:30',
-    completed: false,
-    summary: 'Short-form content playbooks that drive zero-CAC traffic directly to your Whop link.'
+    summary: 'When a membership ends, the webhook receiver revokes the pass and the lessons lock again automatically.'
   }
 ];

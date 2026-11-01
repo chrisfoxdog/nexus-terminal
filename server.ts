@@ -245,8 +245,8 @@ app.get("/api/v1/config/status", (_req, res) => {
       (process.env.WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
       (process.env.NEXT_PUBLIC_WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
       (process.env.VITE_WHOP_APP_ID || "").replace(/^\s*(WHOP_APP_ID|NEXT_PUBLIC_WHOP_APP_ID|VITE_WHOP_APP_ID)\s*=\s*/i, "").trim() ||
-      "app_gzeMFmZKMcOdbA",
-    whop_company_id: process.env.WHOP_COMPANY_ID || "biz_DcAqjfC3rHB0s1",
+      "",
+    whop_company_id: process.env.WHOP_COMPANY_ID || "",
     environment: process.env.NODE_ENV || "development",
     server_time: new Date().toISOString(),
   });
@@ -788,23 +788,24 @@ app.post("/api/gemini/generate-product-copy", async (req, res) => {
     if (!gemini) {
       // Fallback mock copy if API key is not yet set
       return res.json({
-        title: product_title || "Elite Digital Access Pass",
-        description: `Unlock high-converting ${product_type || "digital product"} built for ${target_audience || "ambitious creators and traders"}. Includes instant Whop license key generation, exclusive Discord community access, live updates, and private file downloads.`,
+        title: product_title || "Digital Access Pass",
+        description: `A ${product_type || "digital product"} for ${target_audience || "creators and their members"}. Access is delivered through Whop: when a membership becomes valid, the member's pass activates in Nexus Terminal; when it ends, access is revoked automatically. (Sample copy — no Gemini key is configured.)`,
         bullet_points: [
-          "âš¡ Instant automated access pass delivery upon checkout",
-          "ðŸ”’ Direct integration with Whop SDK license validator",
-          "ðŸ’¬ Exclusive VIP Discord & Telegram group unlocks",
-          "ðŸ“ˆ Regular bonus strategy drops and weekly live Q&As",
+          "Access pass activated automatically after Whop verifies the membership",
+          "License key validation available for software products",
+          "Member portal with course, lounge, and download views",
+          "You control the content, pricing, and refunds in Whop",
         ],
-        marketing_tagline: "Supercharge your digital workflow with verified Whop access.",
-        recommended_price: "$49/month or $399 one-time",
+        marketing_tagline: "Sell through Whop, deliver through Nexus Terminal.",
+        recommended_price: "Set your own price in Whop — this tool does not set prices for you.",
       });
     }
 
-    const prompt = `You are an expert Whop digital marketplace strategist and creator copywriter. 
-Generate a high-converting Whop product profile based on the details below:
+    const prompt = `You are a Whop marketplace copywriter helping a creator describe their own product honestly.
+Generate a clear Whop product profile based on the details below.
+Rules: never promise income, returns, win rates, or results; never invent testimonials, member counts, ratings, or sales figures; describe only features the creator actually provides.
 - Product Category/Type: ${product_type || "Software/Trading Signals/Course/Community"}
-- Product Name: ${product_title || "Apex Digital Pass"}
+- Product Name: ${product_title || "Digital Access Pass"}
 - Target Audience: ${target_audience || "Entrepreneurs, Traders, Developers"}
 - Tone: ${tone || "High-energy, authoritative, premium"}
 
@@ -845,19 +846,20 @@ app.post("/api/gemini/generate-signals", async (req, res) => {
 
     if (!gemini) {
       return res.json({
-        asset: asset || "BTC/USDT",
+        asset: asset || "EXAMPLE",
         action: "BUY / LONG",
-        entry_zone: "$91,200 - $91,600",
-        target_1: "$93,500",
-        target_2: "$95,800",
-        stop_loss: "$89,800",
-        risk_reward: "1 : 2.8",
-        reasoning: "Bullish divergence on 4h timeframe with strong Whop community order flow confluence.",
+        entry_zone: "Example format only — no live data",
+        target_1: "—",
+        target_2: "—",
+        stop_loss: "—",
+        risk_reward: "—",
+        reasoning: "Sample alert showing the format only (no Gemini key configured). Nexus Terminal does not generate trading advice, predictions, or performance figures.",
       });
     }
 
-    const prompt = `You are a top-tier quantitative crypto & stock market analyst creating signal alerts for a high-value Whop signal channel.
-Generate a realistic trading signal update for asset "${asset || "ETH/USDT"}" using strategy style "${strategy || "Breakout / Swing Trading"}".
+    const prompt = `You are drafting a market-watch alert for a creator to review and edit before publishing in their own channel.
+Draft an alert for asset "${asset || "ETH/USDT"}" using style "${strategy || "Breakout / Swing Trading"}".
+Rules: this is a draft for the creator's own judgment, not financial advice. Do not claim a win rate, track record, or guaranteed outcome, and end the reasoning by noting it is educational draft content, not a recommendation.
 Return raw JSON with keys:
 - "asset": String
 - "action": String (e.g. "BUY / LONG" or "SELL / SHORT")
@@ -879,6 +881,7 @@ Return raw JSON with keys:
     });
 
     const data = JSON.parse(response.text?.trim() || "{}");
+    data.disclaimer = "AI-generated draft for the creator to review. Not financial advice; Nexus Terminal does not track or claim any win rate or returns.";
     res.json(data);
   } catch (error: any) {
     res.status(500).json({ error: error.message });
@@ -903,29 +906,36 @@ app.post("/api/gemini/product-chat", async (req, res) => {
 
     if (!gemini) {
       // Fallback response if GEMINI_API_KEY is not configured
-      let reply = "Hello! I am your Whop Product Advisor AI. ";
+      let reply = "Hello! I am the Nexus Terminal product advisor. ";
       const queryLower = (message || "").toLowerCase();
 
+      const catalog: any[] = Array.isArray(products) ? products : [];
+      const categoryFor = (q: string) =>
+        q.includes("signal") || q.includes("trade") || q.includes("crypto") ? "trading"
+        : q.includes("saas") || q.includes("code") || q.includes("developer") || q.includes("software") || q.includes("license") ? "saas"
+        : q.includes("vault") || q.includes("download") || q.includes("template") ? "saas"
+        : q.includes("course") || q.includes("lesson") || q.includes("learn") ? "education"
+        : q.includes("community") || q.includes("chat") ? "coaching"
+        : null;
+      const matched = catalog.find((prod: any) => prod.category === categoryFor(queryLower));
+
       if (selectedProductObj) {
-        reply += `Regarding **${selectedProductObj.title}** ($${selectedProductObj.plans[0]?.price}/${selectedProductObj.plans[0]?.interval}): It features ${selectedProductObj.features.slice(0, 3).join(", ")}. It currently has ${selectedProductObj.totalMembers.toLocaleString()} active pass holders with a ${selectedProductObj.rating} star rating!`;
-      } else if (queryLower.includes("signal") || queryLower.includes("trade") || queryLower.includes("crypto") || queryLower.includes("algo")) {
-        reply += "For trading & signals, our top recommendation is **Apex Algo VIP** ($199/month) for institutional algorithmic alerts or **Quant Crypto Alpha** ($149/month) for automated crypto swing setups.";
-      } else if (queryLower.includes("saas") || queryLower.includes("code") || queryLower.includes("developer") || queryLower.includes("starter")) {
-        reply += "For developers and founders, check out **SaaS Starter Kit & Whop Boilerplate** ($89/month), which includes full React + Node + Whop SDK boilerplate with license key validation built-in!";
-      } else if (queryLower.includes("notion") || queryLower.includes("vault") || queryLower.includes("template")) {
-        reply += "**Notion Creator Hub & Vault** ($29 lifetime) is our top pick for organizing content, tracking sponsorships, and managing digital products!";
+        reply += `Regarding **${selectedProductObj.title}** ($${selectedProductObj.plans[0]?.price}/${selectedProductObj.plans[0]?.interval}): it includes ${selectedProductObj.features.slice(0, 3).join(", ")}.${selectedProductObj.isSample ? " Note: this is a sample template, not a live offer — checkout is disabled until the creator attaches a real Whop plan." : ""}`;
+      } else if (matched) {
+        reply += `From the current catalog, the closest match is **${matched.title}** — ${matched.shortTagline}${matched.isSample ? " It is a sample template showing the format, not a live offer." : ""}`;
       } else {
-        reply += "I can help you compare access passes, answer questions about specific product features, explain pricing tiers, or recommend the best Whop pass for your goals. What are you looking to unlock today?";
+        reply += "I can help you compare the products in this catalog, answer questions about specific features, or explain pricing plans. I only recommend products that are actually listed here — what are you looking for?";
       }
 
       return res.json({
         reply,
-        recommendedProductId: selectedProductId || (queryLower.includes("trade") ? "prod_apex_trader_vip" : queryLower.includes("saas") ? "prod_saas_starter_kit" : undefined)
+        recommendedProductId: selectedProductId || matched?.id
       });
     }
 
-    const systemPrompt = `You are "Whop AI Advisor", an enthusiastic, smart, concise, and helpful product assistant for the Whop Digital Access Pass Marketplace.
-You answer user questions about digital products, courses, signals, SaaS templates, and access passes listed in our marketplace.
+    const systemPrompt = `You are "Nexus AI Advisor", a smart, concise, and helpful product assistant for Nexus Terminal.
+You answer user questions about the products listed in this catalog.
+Honesty rules: only mention products, prices, ratings, and member counts that appear in the catalog below; never invent products or figures; never promise income, returns, win rates, or results; if a product is marked as a sample template, say so plainly.
 
 HERE IS THE CURRENT MARKETPLACE PRODUCTS CATALOG:
 ${productsCatalogSummary}
@@ -941,7 +951,7 @@ Description: ${selectedProductObj.fullDescription}
 RULES:
 1. Provide concise, friendly, and well-formatted answers (use Markdown bolding for product names and prices).
 2. If the user asks for recommendations, match their intent to the most relevant product from the catalog.
-3. Be transparent about pricing plans, renewal periods, Discord role auto-assignment, and Whop license keys.
+3. Be transparent about pricing plans and renewal periods, and about what the app does and does not do.
 4. Keep responses conversational, helpful, and focused on value (maximum 3 short paragraphs or bullet points).
 5. If relevant, mention the specific Product ID or exact product title so the user can easily view or unlock it.`;
 

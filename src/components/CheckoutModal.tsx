@@ -1,6 +1,5 @@
 ﻿import React, { useEffect, useMemo, useState } from 'react';
 import { WhopProduct, ProductPlan, AccessPass } from '../types';
-import { OfferCountdownTimer } from './OfferCountdownTimer';
 import {
   X,
   ShieldCheck,
@@ -39,9 +38,12 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     return plan.interval === 'monthly' || plan.interval === 'yearly';
   }, [plan]);
 
+  // Checkout is enabled only when the plan carries a real Whop plan ID
+  // that was configured after the plan was created in Whop. Internal
+  // catalog IDs (including every sample template plan) never qualify.
   const isRealWhopPlan = useMemo(() => {
-    if (!plan?.id) return false;
-    return /^plan_[A-Za-z0-9_-]+$/.test(plan.id);
+    if (!plan?.whopPlanId) return false;
+    return /^plan_[A-Za-z0-9_-]+$/.test(plan.whopPlanId);
   }, [plan]);
 
   if (!isOpen || !product || !plan) return null;
@@ -52,7 +54,7 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
     setIsOpeningCheckout(true);
 
     const checkoutUrl =
-      'https://whop.com/checkout/' + encodeURIComponent(plan.id);
+      'https://whop.com/checkout/' + encodeURIComponent(plan.whopPlanId!);
 
     window.open(checkoutUrl, '_blank', 'noopener,noreferrer');
 
@@ -84,8 +86,6 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
             <ShieldCheck className="w-4 h-4" />
             <span>Secure Whop Checkout</span>
           </div>
-
-          <OfferCountdownTimer variant="compact" />
 
           <div
             className={
@@ -153,10 +153,9 @@ export const CheckoutModal: React.FC<CheckoutModalProps> = ({
                   </div>
 
                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                    This app is connected to the Whop app interface, but this
-                    product does not have a live Whop plan ID configured yet.
-                    Create the real Whop product and plan before accepting
-                    payments.
+                    This product does not have a live Whop plan configured yet.
+                    Create the real Whop product and plan, then attach its
+                    plan ID before accepting payments.
                   </p>
                 </div>
               </div>

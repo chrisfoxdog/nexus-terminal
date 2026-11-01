@@ -156,9 +156,9 @@ export const GeminiProductChatWidget: React.FC<GeminiProductChatWidgetProps> = (
             <Sparkles className="w-4 h-4 text-amber-300 animate-pulse" />
             <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full ring-2 ring-indigo-600" />
           </div>
-          <span className="tracking-wide">Ask Whop AI</span>
+          <span className="tracking-wide">Ask Nexus AI</span>
           <span className="hidden sm:inline-block px-2 py-0.5 rounded-full bg-white/20 text-[10px] uppercase font-extrabold text-indigo-100">
-            24/7 Advisor
+            Product Advisor
           </span>
         </button>
       )}
@@ -352,7 +352,7 @@ export const GeminiProductChatWidget: React.FC<GeminiProductChatWidgetProps> = (
               type="text"
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              placeholder={activeFocusProduct ? `Ask about ${activeFocusProduct.title}...` : "Ask Whop AI Advisor..."}
+              placeholder={activeFocusProduct ? `Ask about ${activeFocusProduct.title}...` : "Ask Nexus AI Advisor..."}
               className={`flex-1 px-3.5 py-2 text-xs rounded-xl border transition-all focus:outline-none ${
                 darkMode
                   ? 'bg-slate-950 border-slate-800 text-white placeholder-slate-500 focus:border-indigo-500'
