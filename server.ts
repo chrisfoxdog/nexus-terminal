@@ -25,6 +25,7 @@ import {
   StoredPass,
   StoredWebhookLog,
 } from "./server_db";
+import { resolveWhopUserIdentity } from "./server_whop_auth";
 
 const app = express();
 const PORT = 3000;
@@ -155,6 +156,26 @@ function verifyWhopWebhookSignature(
     };
   }
 }
+// --- DATABASE FAILURE HANDLING ---
+// server_db.ts throws when the database is not configured (no
+// DATABASE_URL) or unreachable, and Express 4 does not catch rejections
+// from async handlers — an unguarded DB call would take the whole
+// process down. Handlers that touch the DB route those failures here
+// and degrade to a 503; behaviour is unchanged when the DB works.
+function databaseUnavailable(
+  res: express.Response,
+  error: unknown,
+  extra: Record<string, unknown> = {}
+) {
+  console.error("[Whop DB] Database operation failed:", error);
+  return res.status(503).json({
+    ...extra,
+    error: "DATABASE_UNAVAILABLE",
+    message:
+      "The database is unavailable, so this request cannot be completed right now. Please try again later.",
+  });
+}
+
 // --- API ROUTES ---
 
 // Healthcheck
@@ -210,25 +231,33 @@ app.get("/api/v1/assets/download/:type", (req, res) => {
 });
 
 // Whop Auth & User Identity Endpoint
-// Whop Auth & User Identity Endpoint
+// Identity comes from the verified Whop iframe user token (see
+// server_whop_auth.ts) — never from a client-supplied user-ID header.
 app.get("/api/v1/auth/me", async (req, res) => {
-  const whopUserId = req.headers["x-whop-user-id"] as string | undefined;
+  const identity = await resolveWhopUserIdentity(req.headers);
 
-  if (!whopUserId) {
+  if (!identity) {
     return res.status(401).json({
       authenticated: false,
       error: "WHOP_AUTH_REQUIRED",
-      message: "A valid Whop user identity is required.",
+      message:
+        "A valid Whop user identity is required. Open this app inside Whop so your session token is provided.",
     });
   }
 
-  const passes = await getPassesForUser(whopUserId);
+  let passes: StoredPass[];
+  try {
+    passes = await getPassesForUser(identity.userId);
+  } catch (error) {
+    return databaseUnavailable(res, error);
+  }
 
   return res.json({
     authenticated: true,
+    auth_source: identity.source,
     user: {
-      id: whopUserId,
-      is_whop_authenticated: true,
+      id: identity.userId,
+      is_whop_authenticated: identity.source === "whop_token",
     },
     active_passes_count: passes.filter((p) => p.status === "active").length,
     passes,
@@ -287,16 +316,22 @@ app.get("/api/v1/whop/products", async (_req, res) => {
 // Persistent Access Passes API
 // Persistent Access Passes API
 app.get("/api/v1/passes", async (req, res) => {
-  const userId = req.headers["x-whop-user-id"] as string | undefined;
+  const identity = await resolveWhopUserIdentity(req.headers);
 
-  if (!userId) {
+  if (!identity) {
     return res.status(401).json({
       error: "WHOP_AUTH_REQUIRED",
-      message: "A valid Whop user identity is required.",
+      message:
+        "A valid Whop user identity is required. Open this app inside Whop so your session token is provided.",
     });
   }
 
-  const passes = await getPassesForUser(userId);
+  let passes: StoredPass[];
+  try {
+    passes = await getPassesForUser(identity.userId);
+  } catch (error) {
+    return databaseUnavailable(res, error);
+  }
   return res.json({ passes });
 });
 
@@ -304,13 +339,18 @@ app.get("/api/v1/passes", async (req, res) => {
 // Verify and Claim Access Pass - production Whop verification only
 app.post("/api/v1/passes/claim", async (req, res) => {
   const { license_key, membership_id } = req.body;
-  const userId = req.headers["x-whop-user-id"] as string | undefined;
+  // The buyer identity is derived from the verified Whop iframe user
+  // token (server_whop_auth.ts), never from a client-supplied ID header,
+  // so a claimed pass is tied to the actual Whop buyer.
+  const identity = await resolveWhopUserIdentity(req.headers);
+  const userId = identity?.userId;
 
   if (!userId) {
     return res.status(401).json({
       success: false,
       error: "WHOP_USER_AUTH_REQUIRED",
-      message: "A verified Whop user identity is required to claim an access pass.",
+      message:
+        "A verified Whop user identity is required to claim an access pass. Open this app inside Whop so your session token is provided.",
     });
   }
 
@@ -397,7 +437,12 @@ app.post("/api/v1/passes/claim", async (req, res) => {
       });
     }
 
-    const existingPasses = await getPassesForUser(userId);
+    let existingPasses: StoredPass[];
+    try {
+      existingPasses = await getPassesForUser(userId);
+    } catch (error) {
+      return databaseUnavailable(res, error, { success: false });
+    }
     const existing = existingPasses.find(
       (pass) =>
         (verifiedMembershipId && pass.whopMembershipId === verifiedMembershipId) ||
@@ -441,7 +486,12 @@ app.post("/api/v1/passes/claim", async (req, res) => {
       verifiedOnWhop: true,
     };
 
-    const saved = await savePass(newPass);
+    let saved: StoredPass;
+    try {
+      saved = await savePass(newPass);
+    } catch (error) {
+      return databaseUnavailable(res, error, { success: false });
+    }
 
     return res.json({
       success: true,
@@ -671,106 +721,114 @@ app.post("/api/v1/webhooks/receive", async (req, res) => {
     });
   }
 
-  if (await isEventProcessed(eventId)) {
-    console.log(`[Whop Webhook Idempotency] Skipping duplicate event ${eventId}`);
+  try {
+    if (await isEventProcessed(eventId)) {
+      console.log(`[Whop Webhook Idempotency] Skipping duplicate event ${eventId}`);
+      return res.json({
+        received: true,
+        status: "DUPLICATE_IGNORED",
+        event_id: eventId,
+      });
+    }
+
+    if (
+      action === "membership.went_valid" ||
+      action === "membership.activated" ||
+      action === "membership.created" ||
+      action === "payment.succeeded"
+    ) {
+      const userId = data.user_id || data.user?.id;
+      const productId = data.product_id || data.product?.id;
+      const memId = data.membership_id || data.id;
+
+      if (!userId || !productId || !memId) {
+        return res.status(400).json({
+          received: false,
+          error: "INCOMPLETE_MEMBERSHIP_EVENT",
+          message: "A valid access event must contain user_id, product_id, and membership_id.",
+        });
+      }
+
+      await savePass({
+        id: `pass_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+        userId,
+        productId,
+        productTitle: data.product_name || "Verified Whop Access",
+        creatorName: data.creator_name || "Whop Creator",
+        icon: data.icon || "⚡",
+        coverImage: data.cover_image || "",
+        licenseKey: data.license_key || "",
+        status: "active",
+        planName: data.plan_name || "Verified Subscription",
+        pricePaid:
+          typeof data.amount_total === "number"
+            ? data.amount_total / 100
+            : Number(data.amount || 0),
+        createdAt: new Date().toISOString(),
+        expiresAt: data.expires_at
+          ? new Date(Number(data.expires_at) * 1000).toISOString()
+          : "",
+        discordConnected: false,
+        appType: data.app_type || "signals",
+        whopMembershipId: memId,
+        verifiedOnWhop: true,
+      });
+
+      console.log(`[Whop Webhook Engine] Verified access for user ${userId}`);
+    } else if (
+      action === "membership.went_invalid" ||
+      action === "membership.deleted" ||
+      action === "membership.cancelled"
+    ) {
+      const memId = data.membership_id || data.id;
+
+      if (!memId) {
+        return res.status(400).json({
+          received: false,
+          error: "MISSING_MEMBERSHIP_ID",
+          message: "A membership identifier is required to revoke access.",
+        });
+      }
+
+      await updatePassStatus(memId, "expired");
+      console.log(`[Whop Webhook Engine] Revoked access for membership ${memId}`);
+    }
+
+    const logEntry: StoredWebhookLog = {
+      id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+      action,
+      timestamp: new Date().toISOString(),
+      payload: body,
+      status: "SIGNATURE_VERIFIED",
+      signatureValid: true,
+    };
+
+    await logWebhook(logEntry);
+    await markEventProcessed(eventId);
+
     return res.json({
       received: true,
-      status: "DUPLICATE_IGNORED",
-      event_id: eventId,
+      action,
+      log_id: logEntry.id,
+      signature_verification: verification.reason,
+      timestamp: logEntry.timestamp,
     });
+  } catch (error) {
+    return databaseUnavailable(res, error, { received: false });
   }
-
-  if (
-    action === "membership.went_valid" ||
-    action === "membership.activated" ||
-    action === "membership.created" ||
-    action === "payment.succeeded"
-  ) {
-    const userId = data.user_id || data.user?.id;
-    const productId = data.product_id || data.product?.id;
-    const memId = data.membership_id || data.id;
-
-    if (!userId || !productId || !memId) {
-      return res.status(400).json({
-        received: false,
-        error: "INCOMPLETE_MEMBERSHIP_EVENT",
-        message: "A valid access event must contain user_id, product_id, and membership_id.",
-      });
-    }
-
-    await savePass({
-      id: `pass_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-      userId,
-      productId,
-      productTitle: data.product_name || "Verified Whop Access",
-      creatorName: data.creator_name || "Whop Creator",
-      icon: data.icon || "⚡",
-      coverImage: data.cover_image || "",
-      licenseKey: data.license_key || "",
-      status: "active",
-      planName: data.plan_name || "Verified Subscription",
-      pricePaid:
-        typeof data.amount_total === "number"
-          ? data.amount_total / 100
-          : Number(data.amount || 0),
-      createdAt: new Date().toISOString(),
-      expiresAt: data.expires_at
-        ? new Date(Number(data.expires_at) * 1000).toISOString()
-        : "",
-      discordConnected: false,
-      appType: data.app_type || "signals",
-      whopMembershipId: memId,
-      verifiedOnWhop: true,
-    });
-
-    console.log(`[Whop Webhook Engine] Verified access for user ${userId}`);
-  } else if (
-    action === "membership.went_invalid" ||
-    action === "membership.deleted" ||
-    action === "membership.cancelled"
-  ) {
-    const memId = data.membership_id || data.id;
-
-    if (!memId) {
-      return res.status(400).json({
-        received: false,
-        error: "MISSING_MEMBERSHIP_ID",
-        message: "A membership identifier is required to revoke access.",
-      });
-    }
-
-    await updatePassStatus(memId, "expired");
-    console.log(`[Whop Webhook Engine] Revoked access for membership ${memId}`);
-  }
-
-  const logEntry: StoredWebhookLog = {
-    id: `log_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
-    action,
-    timestamp: new Date().toISOString(),
-    payload: body,
-    status: "SIGNATURE_VERIFIED",
-    signatureValid: true,
-  };
-
-  await logWebhook(logEntry);
-  await markEventProcessed(eventId);
-
-  return res.json({
-    received: true,
-    action,
-    log_id: logEntry.id,
-    signature_verification: verification.reason,
-    timestamp: logEntry.timestamp,
-  });
 });
 
 // Fetch Webhook History
 app.get("/api/v1/webhooks/history", async (_req, res) => {
-  const store = loadStore();
-  res.json({
-    total_received: (await store).webhookLogs.length,
-    logs: (await store).webhookLogs,
-  });
+  try {
+    const store = await loadStore();
+    return res.json({
+      total_received: store.webhookLogs.length,
+      logs: store.webhookLogs,
+    });
+  } catch (error) {
+    return databaseUnavailable(res, error);
+  }
 });
 
 

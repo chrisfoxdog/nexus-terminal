@@ -12,6 +12,7 @@ import { WhopAppStoreModal } from './components/WhopAppStoreModal';
 
 import { WhopProduct, ProductPlan, AccessPass } from './types';
 import { INITIAL_PRODUCTS, INITIAL_USER_PASSES } from './data/whopProducts';
+import { whopAuthHeaders } from './lib/whopAuth';
 
 export default function App() {
   const [currentMode, setCurrentMode] = useState<NavMode>('marketplace');
@@ -86,7 +87,7 @@ export default function App() {
 
   // Fetch passes from the backend.
   useEffect(() => {
-    fetch('/api/v1/passes')
+    fetch('/api/v1/passes', { headers: { ...whopAuthHeaders() } })
       .then((res) => {
         if (!res.ok) {
           throw new Error(`Pass request failed: ${res.status}`);

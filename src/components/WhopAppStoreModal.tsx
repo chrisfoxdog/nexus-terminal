@@ -881,7 +881,7 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                 <span className="font-bold text-slate-300">Why You Don't See The Other Permissions in Whop:</span>
                 <ul className="space-y-1.5 text-slate-400 text-[11px] list-disc list-inside">
                   <li><strong>No "licenses" permission:</strong> In Whop, licenses are stored inside the membership object. <code className="text-indigo-400">memberships:read</code> automatically gives full access to license keys.</li>
-                  <li><strong>No "users" permission:</strong> Whop apps embedded in an iframe automatically receive the member's user ID via the <code className="text-indigo-400">x-whop-user-id</code> header without requiring an extra scope.</li>
+                  <li><strong>No "users" permission:</strong> Whop apps embedded in an iframe automatically receive the member's short-lived JWT via the <code className="text-indigo-400">x-whop-user-token</code> header on same-origin requests. Nexus Terminal verifies that token against Whop's public JWKS on the server and derives the user ID from it — no extra scope is needed for the token itself.</li>
                   <li><strong>No "memberships:write":</strong> Whop's native checkout handles all creation and billing securely. Apps do not manually generate memberships.</li>
                   <li><strong>No "products" permission:</strong> Handled under <code className="text-indigo-400">companies:read</code> or public store listings.</li>
                 </ul>

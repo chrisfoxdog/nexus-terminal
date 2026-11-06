@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { AccessPass, WhopProduct } from '../types';
+import { whopAuthHeaders } from '../lib/whopAuth';
 import { EmbeddedAppViewer } from './EmbeddedAppViewer';
 import {
   Key,
@@ -87,15 +88,15 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
         return;
       }
 
+      // Identity: no user ID is sent from the client. Inside the Whop
+      // iframe, Whop's proxy attaches the buyer's verified user token to
+      // this same-origin request and the server derives the buyer ID from
+      // it (see src/lib/whopAuth.ts and server_whop_auth.ts).
       const claimRes = await fetch('/api/v1/passes/claim', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // TODO(production): replace this placeholder with the real
-          // Whop user identity from the Whop iframe/session before
-          // live sales — passes claimed under a shared placeholder ID
-          // are not tied to the actual buyer.
-          'x-whop-user-id': 'usr_demo_placeholder',
+          ...whopAuthHeaders(),
         },
         body: JSON.stringify({
           license_key: key,
@@ -110,27 +111,42 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
       });
 
       const claimData = await claimRes.json();
+
+      // The claim only counts when the server verified both the license
+      // and the buyer's Whop identity. Never fabricate a local pass from
+      // a failed claim (e.g. opened outside Whop, where no verified
+      // identity token is attached to the request).
+      if (!claimRes.ok || !claimData.success || !claimData.pass) {
+        setRedeemErrorMsg(
+          claimData.message ||
+            'Whop could not verify this claim. Open Nexus Terminal inside Whop and try again.'
+        );
+        setIsRedeeming(false);
+        return;
+      }
+
       const serverPass = claimData.pass;
 
       const newPass: AccessPass = {
-        id: serverPass
-          ? serverPass.id
-          : `pass_redeemed_${Date.now()}`,
-        productId: matchedProd.id,
-        productTitle: matchedProd.title,
-        creatorName: matchedProd.creatorName,
-        icon: matchedProd.icon,
-        coverImage: matchedProd.coverImage,
-        licenseKey: key,
+        id: serverPass.id,
+        productId: serverPass.productId || matchedProd.id,
+        productTitle: serverPass.productTitle || matchedProd.title,
+        creatorName: serverPass.creatorName || matchedProd.creatorName,
+        icon: serverPass.icon || matchedProd.icon,
+        coverImage: serverPass.coverImage || matchedProd.coverImage,
+        licenseKey: serverPass.licenseKey || key,
         status: 'active',
-        planName: matchedProd.plans[0]?.name || 'Standard Pass',
-        pricePaid: matchedProd.plans[0]?.price || 0,
-        createdAt: new Date().toISOString(),
-        expiresAt: new Date(
-          Date.now() + 365 * 86400 * 1000
-        ).toISOString(),
+        planName: serverPass.planName || matchedProd.plans[0]?.name || 'Standard Pass',
+        pricePaid:
+          typeof serverPass.pricePaid === 'number'
+            ? serverPass.pricePaid
+            : matchedProd.plans[0]?.price || 0,
+        createdAt: serverPass.createdAt || new Date().toISOString(),
+        expiresAt:
+          serverPass.expiresAt ||
+          new Date(Date.now() + 365 * 86400 * 1000).toISOString(),
         discordConnected: true,
-        appType: matchedProd.perks.appType,
+        appType: serverPass.appType || matchedProd.perks.appType,
       };
 
       if (onRedeemKey) {

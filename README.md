@@ -99,15 +99,24 @@ Health/config checks once running:
 
 ## Known production blockers (found in the 2026-11-01 saleable pass)
 
-- **Buyer identity on pass claim:** the member-passes claim flow still
-  sends a placeholder `x-whop-user-id` (`usr_demo_placeholder`, marked
-  with a TODO in `MemberPassesView.tsx`). Wire the real Whop user
-  identity from the Whop iframe/session before live sales so passes are
-  tied to the actual buyer.
-- **Gemini model string:** the server requests `gemini-3.6-flash`.
-  Confirm that model name is available on the production Gemini account
-  at deploy time; the endpoints degrade to honest sample responses when
-  no key is configured.
+- **Buyer identity on pass claim — FIXED in code (2026-11-06, not yet
+  deployed):** the claim flow no longer sends a placeholder user ID.
+  Inside the Whop iframe, Whop's proxy attaches the buyer's short-lived
+  JWT (`x-whop-user-token`) to same-origin requests; the server verifies
+  it against Whop's public JWKS (`server_whop_auth.ts`, via `jose`,
+  mirroring AutoCash AI) and derives the buyer ID from the token, so
+  claimed passes are tied to the actual buyer. A client-supplied user-ID
+  header is never trusted. Outside production only, an explicit
+  `x-whop-dev-user-id` header is honoured for local testing. Remaining
+  launch step is config, not code: deploy with `NODE_ENV=production`
+  and run the sandbox gate inside Whop (Whop only attaches the token
+  for the published/approved embedded app).
+- **Gemini model string — VERIFIED (2026-11-06):** `gemini-3.6-flash`
+  is a real, documented GA stable model ID (Google docs). The server's
+  Gemini calls use no `temperature` / `top_p` / `top_k` /
+  `thinking_budget` parameters, so the Gemini 3.6-generation
+  deprecations do not affect this codebase. The endpoints degrade to
+  honest sample responses when no key is configured.
 - **Analytics are presentational:** Creator Studio charts use labeled
   sample data. A live Whop reporting integration is a post-launch item,
   not a launch claim.

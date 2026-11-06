@@ -117,4 +117,110 @@ check('config status has no built-in ID fallbacks', () => {
   }
 });
 
+// 8. Buyer identity: no placeholder ID and no client-supplied identity
+//    header anywhere in shipped source. Identity must come from the
+//    verified Whop iframe token, never from a header the client invents.
+check('no placeholder buyer identity or trusted client ID header', () => {
+  const files = [...sourceFiles('src'), 'server.ts', 'server_whop_auth.ts'];
+  for (const rel of files) {
+    const text = read(rel);
+    assert.ok(!/usr_demo_placeholder/.test(text), `${rel} still contains the placeholder buyer ID`);
+    assert.ok(
+      !/headers\[["']x-whop-user-id["']\]/.test(text),
+      `${rel} must not read identity from a client-supplied user-ID header`
+    );
+  }
+  const passesView = read('src/components/MemberPassesView.tsx');
+  assert.ok(
+    !/['"]x-whop-user-id['"]\s*:/.test(passesView),
+    'claim request must not send a client-invented user ID'
+  );
+});
+
+// 9. Server identity wiring: the claim, passes, and auth/me endpoints
+//    resolve identity through the JWKS token verifier.
+check('server derives identity from the verified Whop user token', () => {
+  const server = read('server.ts');
+  assert.match(server, /resolveWhopUserIdentity\(req\.headers\)/, 'server must resolve identity via the token verifier');
+  assert.ok(
+    (server.match(/resolveWhopUserIdentity\(req\.headers\)/g) || []).length >= 3,
+    'auth/me, passes list, and pass claim must all use the verified identity'
+  );
+  const auth = read('server_whop_auth.ts');
+  assert.match(auth, /api\.whop\.com\/\.well-known\/jwks\.json/, 'verifier must use Whop\'s official JWKS endpoint');
+  assert.match(auth, /jwtVerify/, 'verifier must cryptographically verify the JWT');
+  // The dev fallback must stay gated off in production.
+  assert.match(auth, /NODE_ENV !== "production"/, 'dev identity fallback must be gated to non-production');
+});
+
+// 10. Cryptographic round-trip: a token signed by a test RS256 key is
+//     accepted via a local JWKS; tampered and expired tokens are not.
+async function checkTokenVerification() {
+  const { generateKeyPair, exportJWK, createLocalJWKSet, SignJWT } =
+    await import('jose');
+  const { verifyWhopUserToken, resolveWhopUserIdentity } =
+    await import('../server_whop_auth.ts');
+
+  const { publicKey, privateKey } = await generateKeyPair('RS256');
+  const jwk = await exportJWK(publicKey);
+  jwk.kid = 'test-key-1';
+  jwk.alg = 'RS256';
+  const localJwks = createLocalJWKSet({ keys: [jwk] });
+
+  const sign = (claims: Record<string, unknown>, exp: string) =>
+    new SignJWT(claims)
+      .setProtectedHeader({ alg: 'RS256', kid: 'test-key-1' })
+      .setIssuedAt()
+      .setExpirationTime(exp)
+      .sign(privateKey);
+
+  const good = await sign({ sub: 'user_buyer123' }, '5m');
+  const okResult = await verifyWhopUserToken(good, localJwks);
+  assert.equal(okResult.valid, true, 'valid RS256 token must verify');
+  assert.equal(okResult.userId, 'user_buyer123', 'user ID must come from the token subject');
+
+  const expired = await sign({ sub: 'user_buyer123' }, '-5m');
+  const expiredResult = await verifyWhopUserToken(expired, localJwks);
+  assert.equal(expiredResult.valid, false, 'expired token must be rejected');
+
+  const tampered = `${good.slice(0, -2)}xx`;
+  const tamperedResult = await verifyWhopUserToken(tampered, localJwks);
+  assert.equal(tamperedResult.valid, false, 'tampered token must be rejected');
+
+  // No token and no dev header → no identity (fail closed).
+  assert.equal(await resolveWhopUserIdentity({}), null);
+
+  passed += 1;
+  console.log(`ok ${passed} - Whop user token verification round-trip`);
+}
+
+// 11. Database failure hardening: server_db.ts throws when DATABASE_URL
+//     is unset (or Postgres is unreachable), and Express 4 does not catch
+//     async handler rejections — an unguarded DB call crashes the whole
+//     process. Every DB-backed handler must route that throw through the
+//     503 responder instead.
+check('database failures degrade to 503, not a process crash', () => {
+  const server = read('server.ts');
+  assert.match(
+    server,
+    /status\(503\)\.json\(\{\s*\.\.\.extra,\s*error: "DATABASE_UNAVAILABLE"/,
+    'server must define a 503 DATABASE_UNAVAILABLE responder'
+  );
+  const guarded = (server.match(/return databaseUnavailable\(res, error/g) || []).length;
+  assert.ok(
+    guarded >= 6,
+    `auth/me, passes, pass claim (x2), webhook receive, and webhook history must all guard their DB calls (found ${guarded})`
+  );
+  assert.ok(
+    !/const passes = await getPassesForUser/.test(server),
+    'passes lookups must be wrapped so a DB throw cannot crash the process'
+  );
+  assert.ok(
+    !/const store = loadStore\(\)/.test(server),
+    'webhook history must await loadStore inside a guarded block'
+  );
+});
+
+await checkTokenVerification();
+
 console.log(`\n${passed} guardrail checks passed`);
