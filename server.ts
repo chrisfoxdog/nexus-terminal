@@ -10,7 +10,6 @@ import express from "express";
 import path from "path";
 import fs from "fs";
 import crypto from "crypto";
-import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
 import {
   loadStore,
@@ -1057,6 +1056,9 @@ RULES:
 // START SERVER WITH VITE MIDDLEWARE
 async function startServer() {
   if (process.env.NODE_ENV !== "production") {
+    // Loaded lazily so production serverless functions never import Vite
+    // (a dev-only tool); a top-level import crashes the function at load.
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "spa",
