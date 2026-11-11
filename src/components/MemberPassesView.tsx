@@ -70,6 +70,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncWarning, setSyncWarning] = useState(false);
   const [syncSummary, setSyncSummary] = useState('');
+  const [diagSummary, setDiagSummary] = useState('');
 
   // Passes sync automatically from the buyer's real Whop memberships:
   // most Whop products never issue a license key, so the buyer's passes
@@ -106,6 +107,25 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
       .finally(() => {
         if (!cancelled) setIsSyncing(false);
       });
+
+    // Temporary diagnostic probe: names the exact stage the sync chain
+    // reaches for this viewer (removed after diagnosis).
+    fetch('/api/v1/passes/diag', { headers: { ...whopAuthHeaders() } })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((diag) => {
+        if (cancelled || !diag) return;
+        if (!diag.token_present)
+          setDiagSummary('Diagnostic: Whop sent no user token to the app.');
+        else if (!diag.token_verifies)
+          setDiagSummary('Diagnostic: user token received but verification failed.');
+        else if (diag.list_error)
+          setDiagSummary(`Diagnostic: identity OK; Whop list error: ${diag.list_error}`);
+        else
+          setDiagSummary(
+            `Diagnostic: identity OK; app key sees ${diag.listed ?? '?'} of your memberships.`
+          );
+      })
+      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -284,7 +304,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
             />
             {syncWarning
               ? "Couldn't reach Whop to refresh your passes just now — showing your last synced passes."
-              : `Passes sync automatically from your Whop memberships.${syncSummary ? ` ${syncSummary}` : ''}`}
+              : `Passes sync automatically from your Whop memberships.${syncSummary ? ` ${syncSummary}` : ''}${diagSummary ? ` ${diagSummary}` : ''}`}
           </p>
         </div>
 

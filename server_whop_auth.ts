@@ -109,3 +109,36 @@ export async function resolveWhopUserIdentity(
 
   return null;
 }
+
+/**
+ * Diagnostic breakdown of the identity check, used by the temporary
+ * /api/v1/passes/diag probe: separates "Whop sent no token" from
+ * "token arrived but did not verify" from "identity resolved".
+ * Returns no secret material — only booleans and a 4-char user suffix.
+ */
+export async function diagnoseWhopUserToken(
+  headers: WhopIdentityHeaders
+): Promise<{ tokenPresent: boolean; tokenVerifies: boolean; userTail: string | null }> {
+  const rawToken =
+    readHeader(headers, "x-whop-user-token") ||
+    extractBearerToken(readHeader(headers, "authorization"));
+  if (!rawToken) {
+    return { tokenPresent: false, tokenVerifies: false, userTail: null };
+  }
+  try {
+    const { payload } = await jwtVerify(rawToken, remoteJWKSet, {
+      algorithms: ["RS256"],
+    });
+    const userId = payloadUserId(payload);
+    if (!userId) {
+      return { tokenPresent: true, tokenVerifies: false, userTail: null };
+    }
+    return {
+      tokenPresent: true,
+      tokenVerifies: true,
+      userTail: userId.slice(-4),
+    };
+  } catch {
+    return { tokenPresent: true, tokenVerifies: false, userTail: null };
+  }
+}
