@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { AccessPass, WhopProduct } from '../types';
 import { whopAuthHeaders } from '../lib/whopAuth';
 import { EmbeddedAppViewer } from './EmbeddedAppViewer';
@@ -10,6 +10,7 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
+  RefreshCw,
 } from 'lucide-react';
 
 interface MemberPassesViewProps {
@@ -18,6 +19,33 @@ interface MemberPassesViewProps {
   onBrowseMarketplace: () => void;
   products: WhopProduct[];
   onRedeemKey?: (newPass: AccessPass) => void;
+  onPassesSync?: (passes: AccessPass[]) => void;
+}
+
+// Maps a server StoredPass (from /api/v1/passes or /api/v1/passes/sync)
+// onto the client AccessPass shape.
+function mapServerPass(serverPass: any): AccessPass {
+  return {
+    id: serverPass.id,
+    productId: serverPass.productId || '',
+    productTitle: serverPass.productTitle || 'Verified Whop Access',
+    creatorName: serverPass.creatorName || 'Whop Creator',
+    icon: serverPass.icon || '⚡',
+    coverImage: serverPass.coverImage || '',
+    licenseKey: serverPass.licenseKey || serverPass.whopMembershipId || '',
+    status: serverPass.status || 'active',
+    planName: serverPass.planName || 'Verified Whop Membership',
+    pricePaid:
+      typeof serverPass.pricePaid === 'number' ? serverPass.pricePaid : 0,
+    createdAt: serverPass.createdAt || new Date().toISOString(),
+    expiresAt: serverPass.expiresAt || '',
+    discordConnected: !!serverPass.discordConnected,
+    appType: serverPass.appType || 'signals',
+    ...(serverPass.isTrialActive ? { isTrialActive: true } : {}),
+    ...(serverPass.whopMembershipId
+      ? { whopMembershipId: serverPass.whopMembershipId }
+      : {}),
+  };
 }
 
 export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
@@ -26,6 +54,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   onBrowseMarketplace,
   products,
   onRedeemKey,
+  onPassesSync,
 }) => {
   const [activeAppPass, setActiveAppPass] = useState<AccessPass | null>(null);
   const [copiedKeyId, setCopiedKeyId] = useState<string | null>(null);
@@ -38,6 +67,46 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   const [redeemSuccessMsg, setRedeemSuccessMsg] = useState('');
   const [redeemErrorMsg, setRedeemErrorMsg] = useState('');
   const [isRedeeming, setIsRedeeming] = useState(false);
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [syncWarning, setSyncWarning] = useState(false);
+
+  // Passes sync automatically from the buyer's real Whop memberships:
+  // most Whop products never issue a license key, so the buyer's passes
+  // are materialized server-side from their verified memberships (see
+  // POST /api/v1/passes/sync). Runs on mount; a failed or unauthenticated
+  // sync (e.g. opened outside Whop) leaves the current passes untouched.
+  useEffect(() => {
+    let cancelled = false;
+    setIsSyncing(true);
+
+    fetch('/api/v1/passes/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...whopAuthHeaders(),
+      },
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (Array.isArray(data.passes) && onPassesSync) {
+          onPassesSync(data.passes.map(mapServerPass));
+        }
+        setSyncWarning(Boolean(data.sync_warning) || data.synced === false);
+      })
+      .catch(() => {
+        // Network failure — keep showing the passes already loaded.
+      })
+      .finally(() => {
+        if (!cancelled) setIsSyncing(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+    // Sync once on mount; onPassesSync is a stable App-level setter.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleCopyKey = (pass: AccessPass) => {
     navigator.clipboard.writeText(pass.licenseKey);
@@ -147,6 +216,9 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
           new Date(Date.now() + 365 * 86400 * 1000).toISOString(),
         discordConnected: true,
         appType: serverPass.appType || matchedProd.perks.appType,
+        ...(serverPass.whopMembershipId
+          ? { whopMembershipId: serverPass.whopMembershipId }
+          : {}),
       };
 
       if (onRedeemKey) {
@@ -199,19 +271,18 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
             Manage your active Whop subscriptions, license keys, and launch
             embedded Whop Apps.
           </p>
+
+          <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-1.5 flex items-center gap-1.5">
+            <RefreshCw
+              className={`w-3 h-3 ${isSyncing ? 'animate-spin' : ''}`}
+            />
+            {syncWarning
+              ? "Couldn't reach Whop to refresh your passes just now — showing your last synced passes."
+              : 'Passes sync automatically from your Whop memberships.'}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-          <button
-            onClick={() => setIsRedeemOpen(!isRedeemOpen)}
-            className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-sm transition-colors flex items-center gap-1.5"
-          >
-            <Key className="w-4 h-4" />
-            <span>
-              {isRedeemOpen ? 'Close Key Import' : 'Redeem Whop Key'}
-            </span>
-          </button>
-
           <button
             onClick={onBrowseMarketplace}
             className="px-4 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-colors"
@@ -219,6 +290,20 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
             Explore Marketplace
           </button>
         </div>
+      </div>
+
+      <div className="-mt-4">
+        <button
+          onClick={() => setIsRedeemOpen(!isRedeemOpen)}
+          className="text-[11px] font-semibold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 underline underline-offset-2 transition-colors inline-flex items-center gap-1"
+        >
+          <Key className="w-3 h-3" />
+          <span>
+            {isRedeemOpen
+              ? 'Hide license key claim'
+              : 'Have a license key instead?'}
+          </span>
+        </button>
       </div>
 
       {isRedeemOpen && (
@@ -235,8 +320,10 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
           </h3>
 
           <p className="text-xs text-slate-500 dark:text-slate-400 mb-4">
-            Enter a key purchased from Whop.com or created in Creator Studio to
-            unlock access immediately in your account.
+            Only some Whop products (software licensing) issue license keys —
+            most passes appear automatically above from your memberships. If
+            you were given a key, enter it here to unlock access immediately
+            in your account.
           </p>
 
           <form onSubmit={handleExecuteRedeem} className="space-y-4">
@@ -353,10 +440,10 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
 
               <div>
                 <strong className="text-slate-900 dark:text-white block mb-0.5">
-                  Copy License Key
+                  Copy Pass Reference
                 </strong>
-                Click the copy icon on any pass card to copy your unique
-                license key to clipboard.
+                Click the copy icon on any pass card to copy its license key
+                or membership ID to clipboard.
               </div>
             </div>
 
@@ -477,7 +564,10 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
                     <div className="space-y-1.5">
                       <div className="flex items-center justify-between text-[11px]">
                         <span className="text-slate-400 font-semibold uppercase">
-                          Whop License Key
+                          {pass.whopMembershipId &&
+                          pass.licenseKey === pass.whopMembershipId
+                            ? 'Whop Membership ID'
+                            : 'Whop License Key'}
                         </span>
 
                         <span className="text-amber-500 font-semibold">

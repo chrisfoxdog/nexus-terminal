@@ -309,6 +309,7 @@ export default function App() {
             onRedeemKey={(newPass) =>
               setUserPasses((prev) => [newPass, ...prev])
             }
+            onPassesSync={(syncedPasses) => setUserPasses(syncedPasses)}
           />
         )}
 

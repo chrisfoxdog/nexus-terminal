@@ -484,9 +484,23 @@ validate_whop_license("${testKey}")`;
             <span className="text-[10px] text-zinc-500 font-mono">Listening on /api/v1/webhooks/receive</span>
           </div>
 
+          <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10 text-[11px] leading-relaxed text-amber-200">
+            <strong>Sample data:</strong> entries created with the built-in
+            webhook simulator are demo events with fake names and masked IDs
+            (shown as <span className="font-mono">xxxx</span>) and are labeled{' '}
+            <span className="font-bold">SAMPLE DATA</span> below. Only events
+            Whop actually delivered to{' '}
+            <span className="font-mono">/api/v1/webhooks/receive</span> with a
+            verified signature are real.
+          </div>
+
           <div className="p-4 rounded-xl bg-black border border-zinc-800 font-mono text-xs overflow-x-auto max-h-56 space-y-2">
             {webhookLogs.length > 0 ? (
-              webhookLogs.map((log) => (
+              webhookLogs.map((log) => {
+                // Simulated entries carry masked placeholder IDs
+                // (mem_xxxx…, plan_xxxx…); genuine Whop IDs never do.
+                const isSampleLog = JSON.stringify(log.payload ?? {}).includes('xxxx');
+                return (
                 <div key={log.id} className="p-2.5 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 space-y-1">
                   <div className="flex items-center justify-between text-[11px]">
                     <div className="flex items-center gap-2">
@@ -494,6 +508,11 @@ validate_whop_license("${testKey}")`;
                       <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-purple-300 border border-zinc-700">
                         {log.status || 'VERIFIED'}
                       </span>
+                      {isSampleLog && (
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30">
+                          SAMPLE DATA
+                        </span>
+                      )}
                     </div>
                     <span className="text-zinc-500 text-[10px]">{new Date(log.timestamp).toLocaleTimeString()}</span>
                   </div>
@@ -501,7 +520,8 @@ validate_whop_license("${testKey}")`;
                     {JSON.stringify(log.payload, null, 2)}
                   </pre>
                 </div>
-              ))
+                );
+              })
             ) : (
               <div className="text-zinc-600 text-center py-6">
                 No webhook events received yet. Click "Simulate Webhook Event" or trigger a webhook from Whop!

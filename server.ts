@@ -25,6 +25,7 @@ import {
   StoredWebhookLog,
 } from "./server_db";
 import { resolveWhopUserIdentity } from "./server_whop_auth";
+import { syncPassesForUser } from "./server_pass_sync";
 
 const app = express();
 const PORT = 3000;
@@ -332,6 +333,105 @@ app.get("/api/v1/passes", async (req, res) => {
     return databaseUnavailable(res, error);
   }
   return res.json({ passes });
+});
+
+// Lists the user's memberships in the company from the real Whop API.
+// The SDK returns a Page with a `data` array; the walk is bounded so a
+// bad cursor can never loop — a member realistically holds a handful of
+// memberships in a single company.
+async function listUserMembershipsFromWhop(
+  companyId: string,
+  userId: string
+): Promise<any[]> {
+  const whopClient = getWhopClient();
+  const memberships: any[] = [];
+
+  let page: any = await whopClient.memberships.list({
+    account_id: companyId,
+    user_id: userId,
+    first: 100,
+  });
+
+  for (let i = 0; i < 5; i++) {
+    const items = Array.isArray(page)
+      ? page
+      : page?.data || page?.response?.data || [];
+    memberships.push(...items);
+
+    if (
+      !page ||
+      typeof page.hasNextPage !== "function" ||
+      !page.hasNextPage()
+    ) {
+      break;
+    }
+    page = await page.getNextPage();
+  }
+
+  return memberships;
+}
+
+// Sync Access Passes from Whop Memberships
+// The key-paste claim flow cannot serve most buyers: Whop sets
+// license_key = null on memberships of app-type products, so there is
+// no key to paste. Sync is the primary door — for the verified buyer it
+// reads their real memberships from Whop and makes the stored passes
+// match (create for valid memberships, expire when a membership ends).
+// Fails safe: a Whop API/configuration problem returns the stored
+// passes untouched with a sync warning and revokes nothing.
+app.post("/api/v1/passes/sync", async (req, res) => {
+  const identity = await resolveWhopUserIdentity(req.headers);
+
+  if (!identity) {
+    return res.status(401).json({
+      error: "WHOP_USER_AUTH_REQUIRED",
+      message:
+        "A valid Whop user identity is required. Open this app inside Whop so your session token is provided.",
+    });
+  }
+
+  const userId = identity.userId;
+  const companyId = process.env.WHOP_COMPANY_ID || "";
+
+  if (!process.env.WHOP_API_KEY || !companyId) {
+    let storedPasses: StoredPass[];
+    try {
+      storedPasses = await getPassesForUser(userId);
+    } catch (error) {
+      return databaseUnavailable(res, error);
+    }
+    return res.json({
+      passes: storedPasses,
+      synced: false,
+      sync_warning: !process.env.WHOP_API_KEY
+        ? "WHOP_API_NOT_CONFIGURED"
+        : "WHOP_COMPANY_NOT_CONFIGURED",
+      created: 0,
+      reactivated: 0,
+      expired: 0,
+    });
+  }
+
+  try {
+    const result = await syncPassesForUser(userId, {
+      listMemberships: () => listUserMembershipsFromWhop(companyId, userId),
+      getPasses: getPassesForUser,
+      savePass,
+      expirePassByMembershipId: (membershipId) =>
+        updatePassStatus(membershipId, "expired"),
+    });
+
+    return res.json({
+      passes: result.passes,
+      synced: !result.syncWarning,
+      ...(result.syncWarning ? { sync_warning: result.syncWarning } : {}),
+      created: result.created,
+      reactivated: result.reactivated,
+      expired: result.expired,
+    });
+  } catch (error) {
+    return databaseUnavailable(res, error);
+  }
 });
 
 // Verify and Claim Access Pass

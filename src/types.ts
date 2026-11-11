@@ -77,6 +77,7 @@ export interface AccessPass {
   discordConnected: boolean;
   appType: AppIframeType;
   isTrialActive?: boolean;
+  whopMembershipId?: string;
 }
 
 export interface SignalAlert {
