@@ -69,8 +69,6 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncWarning, setSyncWarning] = useState(false);
-  const [syncSummary, setSyncSummary] = useState('');
-  const [diagSummary, setDiagSummary] = useState('');
 
   // Passes sync automatically from the buyer's real Whop memberships:
   // most Whop products never issue a license key, so the buyer's passes
@@ -95,11 +93,6 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
           onPassesSync(data.passes.map(mapServerPass));
         }
         setSyncWarning(Boolean(data.sync_warning) || data.synced === false);
-        if (typeof data.listed_raw === 'number') {
-          setSyncSummary(
-            `Whop returned ${data.listed_raw} memberships, ${data.listed_for_user ?? 0} for your account.`
-          );
-        }
       })
       .catch(() => {
         // Network failure — keep showing the passes already loaded.
@@ -107,27 +100,6 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
       .finally(() => {
         if (!cancelled) setIsSyncing(false);
       });
-
-    // Temporary diagnostic probe: names the exact stage the sync chain
-    // reaches for this viewer (removed after diagnosis).
-    fetch('/api/v1/passes/diag', { headers: { ...whopAuthHeaders() } })
-      .then((res) => (res.ok ? res.json() : null))
-      .then((diag) => {
-        if (cancelled || !diag) return;
-        if (!diag.token_present)
-          setDiagSummary('Diagnostic: Whop sent no user token to the app.');
-        else if (!diag.token_verifies)
-          setDiagSummary(
-            `Diagnostic: token failed verification — alg ${diag.token_alg ?? '?'}, iss ${diag.token_iss ?? '?'}. ${diag.verify_error ?? ''}`
-          );
-        else if (diag.list_error)
-          setDiagSummary(`Diagnostic: identity OK; Whop list error: ${diag.list_error}`);
-        else
-          setDiagSummary(
-            `Diagnostic: identity OK; app key sees ${diag.listed ?? '?'} of your memberships.`
-          );
-      })
-      .catch(() => {});
 
     return () => {
       cancelled = true;
@@ -306,7 +278,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
             />
             {syncWarning
               ? "Couldn't reach Whop to refresh your passes just now — showing your last synced passes."
-              : `Passes sync automatically from your Whop memberships.${syncSummary ? ` ${syncSummary}` : ''}${diagSummary ? ` ${diagSummary}` : ''}`}
+              : 'Passes sync automatically from your Whop memberships.'}
           </p>
         </div>
 
@@ -619,12 +591,12 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
                     <div className="grid grid-cols-2 gap-3 text-xs">
                       <div className="p-3 rounded-lg bg-slate-100 dark:bg-slate-800/50 space-y-0.5">
                         <span className="text-slate-400 text-[10px] block">
-                          Discord Sync
+                          Whop Access
                         </span>
 
                         <span className="font-bold text-indigo-600 dark:text-indigo-400 flex items-center gap-1">
                           <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
-                          Role Assigned
+                          Verified
                         </span>
                       </div>
 
@@ -636,9 +608,11 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
                         <span className="font-bold text-slate-700 dark:text-slate-300">
                           {pass.expiresAt.startsWith('2099')
                             ? 'Lifetime Pass'
-                            : new Date(
-                                pass.expiresAt
-                              ).toLocaleDateString()}
+                            : Number.isNaN(Date.parse(pass.expiresAt))
+                              ? '—'
+                              : new Date(
+                                  pass.expiresAt
+                                ).toLocaleDateString()}
                         </span>
                       </div>
                     </div>

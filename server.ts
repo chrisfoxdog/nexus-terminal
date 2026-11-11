@@ -24,7 +24,7 @@ import {
   StoredPass,
   StoredWebhookLog,
 } from "./server_db";
-import { resolveWhopUserIdentity, diagnoseWhopUserToken } from "./server_whop_auth";
+import { resolveWhopUserIdentity } from "./server_whop_auth";
 import { syncPassesForUser } from "./server_pass_sync";
 
 const app = express();
@@ -370,42 +370,6 @@ async function listUserMembershipsFromWhop(
 
   return memberships;
 }
-
-// TEMPORARY diagnostic probe for the pass-sync investigation: reports
-// which stage of the sync chain this very request reaches — token
-// presence, token verification, and the app key's membership-list
-// visibility — as booleans/counts only. Remove after diagnosis.
-app.get("/api/v1/passes/diag", async (req, res) => {
-  const diag = await diagnoseWhopUserToken(req.headers);
-  const apiKeySet = Boolean(process.env.WHOP_API_KEY);
-  const companyId = process.env.WHOP_COMPANY_ID || "";
-  let listed: number | null = null;
-  let listError: string | null = null;
-  if (diag.tokenVerifies && apiKeySet && companyId) {
-    const identity = await resolveWhopUserIdentity(req.headers);
-    if (identity) {
-      try {
-        const memberships = await listUserMembershipsFromWhop(companyId, identity.userId);
-        listed = memberships.length;
-      } catch (err: any) {
-        listError = String(err?.message || err).slice(0, 120);
-      }
-    }
-  }
-  res.json({
-    token_present: diag.tokenPresent,
-    token_verifies: diag.tokenVerifies,
-    user_tail: diag.userTail,
-    verify_error: diag.verifyError,
-    token_alg: diag.tokenAlg,
-    token_iss: diag.tokenIss,
-    token_exp: diag.tokenExp,
-    api_key_set: apiKeySet,
-    company_set: Boolean(companyId),
-    listed,
-    list_error: listError,
-  });
-});
 
 // Sync Access Passes from Whop Memberships
 // The key-paste claim flow cannot serve most buyers: Whop sets
