@@ -117,7 +117,9 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
         if (!diag.token_present)
           setDiagSummary('Diagnostic: Whop sent no user token to the app.');
         else if (!diag.token_verifies)
-          setDiagSummary('Diagnostic: user token received but verification failed.');
+          setDiagSummary(
+            `Diagnostic: token failed verification — alg ${diag.token_alg ?? '?'}, iss ${diag.token_iss ?? '?'}. ${diag.verify_error ?? ''}`
+          );
         else if (diag.list_error)
           setDiagSummary(`Diagnostic: identity OK; Whop list error: ${diag.list_error}`);
         else

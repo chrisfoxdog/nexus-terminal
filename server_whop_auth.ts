@@ -118,20 +118,68 @@ export async function resolveWhopUserIdentity(
  */
 export async function diagnoseWhopUserToken(
   headers: Record<string, string | string[] | undefined>
-): Promise<{ tokenPresent: boolean; tokenVerifies: boolean; userTail: string | null }> {
+): Promise<{
+  tokenPresent: boolean;
+  tokenVerifies: boolean;
+  userTail: string | null;
+  verifyError: string | null;
+  tokenAlg: string | null;
+  tokenIss: string | null;
+  tokenExp: number | null;
+}> {
   const tokenHeader =
     (headers["x-whop-user-token"] as string | undefined) ||
     (headers["authorization"] as string | undefined);
   if (!tokenHeader) {
-    return { tokenPresent: false, tokenVerifies: false, userTail: null };
+    return {
+      tokenPresent: false,
+      tokenVerifies: false,
+      userTail: null,
+      verifyError: null,
+      tokenAlg: null,
+      tokenIss: null,
+      tokenExp: null,
+    };
   }
   const verification = await verifyWhopUserToken(tokenHeader);
   if (!verification.valid || !verification.userId) {
-    return { tokenPresent: true, tokenVerifies: false, userTail: null };
+    // Peek at the UNVERIFIED header/claims to name the mismatch (alg,
+    // issuer, expiry) — diagnostic only, never trusted for identity.
+    let alg: string | null = null;
+    let iss: string | null = null;
+    let exp: number | null = null;
+    try {
+      const clean = tokenHeader.startsWith("Bearer ")
+        ? tokenHeader.slice(7).trim()
+        : tokenHeader.trim();
+      const parts = clean.split(".");
+      if (parts.length === 3) {
+        const header = JSON.parse(Buffer.from(parts[0], "base64url").toString("utf8"));
+        const claims = JSON.parse(Buffer.from(parts[1], "base64url").toString("utf8"));
+        alg = typeof header?.alg === "string" ? header.alg : null;
+        iss = typeof claims?.iss === "string" ? claims.iss : null;
+        exp = typeof claims?.exp === "number" ? claims.exp : null;
+      }
+    } catch {
+      /* peek is best-effort */
+    }
+    return {
+      tokenPresent: true,
+      tokenVerifies: false,
+      userTail: null,
+      verifyError: (verification.error || "unknown").slice(0, 140),
+      tokenAlg: alg,
+      tokenIss: iss,
+      tokenExp: exp,
+    };
   }
   return {
     tokenPresent: true,
     tokenVerifies: true,
     userTail: verification.userId.slice(-4),
+    verifyError: null,
+    tokenAlg: null,
+    tokenIss: null,
+    tokenExp: null,
   };
 }
