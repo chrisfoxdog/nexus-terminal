@@ -117,28 +117,21 @@ export async function resolveWhopUserIdentity(
  * Returns no secret material — only booleans and a 4-char user suffix.
  */
 export async function diagnoseWhopUserToken(
-  headers: WhopIdentityHeaders
+  headers: Record<string, string | string[] | undefined>
 ): Promise<{ tokenPresent: boolean; tokenVerifies: boolean; userTail: string | null }> {
-  const rawToken =
-    readHeader(headers, "x-whop-user-token") ||
-    extractBearerToken(readHeader(headers, "authorization"));
-  if (!rawToken) {
+  const tokenHeader =
+    (headers["x-whop-user-token"] as string | undefined) ||
+    (headers["authorization"] as string | undefined);
+  if (!tokenHeader) {
     return { tokenPresent: false, tokenVerifies: false, userTail: null };
   }
-  try {
-    const { payload } = await jwtVerify(rawToken, remoteJWKSet, {
-      algorithms: ["RS256"],
-    });
-    const userId = payloadUserId(payload);
-    if (!userId) {
-      return { tokenPresent: true, tokenVerifies: false, userTail: null };
-    }
-    return {
-      tokenPresent: true,
-      tokenVerifies: true,
-      userTail: userId.slice(-4),
-    };
-  } catch {
+  const verification = await verifyWhopUserToken(tokenHeader);
+  if (!verification.valid || !verification.userId) {
     return { tokenPresent: true, tokenVerifies: false, userTail: null };
   }
+  return {
+    tokenPresent: true,
+    tokenVerifies: true,
+    userTail: verification.userId.slice(-4),
+  };
 }
