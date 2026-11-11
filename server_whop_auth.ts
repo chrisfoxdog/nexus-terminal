@@ -9,8 +9,10 @@
 // ID from its claims. A client-supplied user-ID header is forgeable by
 // anyone who can reach this server directly, so it is never trusted here.
 //
-// Verification mirrors the AutoCash AI server (server/whop.ts): RS256
+// Verification mirrors the AutoCash AI server (server/whop.ts):
 // signature + expiry checked against Whop's public JWKS via `jose`.
+// Whop's experience proxy issues ES256 tokens (live-proven 2026-11-11),
+// so both ES256 and RS256 are accepted.
 // (The @whop/sdk version pinned by this repo ships no user-token
 // verifier, so — as Whop's own docs advise for TypeScript — the JWT is
 // verified directly.)
@@ -49,7 +51,11 @@ export async function verifyWhopUserToken(
   try {
     // Verify cryptographic signature and expiration against Whop JWKS.
     const { payload } = await jwtVerify(cleanToken, getKey, {
-      algorithms: ["RS256"],
+      // Whop's experience proxy signs user tokens with ES256 (issuer
+      // urn:whopcom:exp-proxy, proven live 2026-11-11); RS256 kept for
+      // any legacy-issued tokens. Restricting to RS256 alone rejected
+      // every real buyer token.
+      algorithms: ["ES256", "RS256"],
     });
 
     // Whop token payload carries the user ID in `sub` (or `user_id`).
