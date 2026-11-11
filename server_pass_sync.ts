@@ -236,6 +236,10 @@ export interface PassSyncResult {
   created: number;
   reactivated: number;
   expired: number;
+  /** Observability: how many memberships Whop's list returned at all,
+   *  and how many of them were attributed to this user after filtering. */
+  listedRaw: number;
+  listedForUser: number;
 }
 
 /**
@@ -261,6 +265,8 @@ export async function syncPassesForUser(
       created: 0,
       reactivated: 0,
       expired: 0,
+      listedRaw: 0,
+      listedForUser: 0,
     };
   }
 
@@ -287,5 +293,7 @@ export async function syncPassesForUser(
     created: plan.creates.length,
     reactivated: plan.reactivations.length,
     expired,
+    listedRaw: Array.isArray(rawMemberships) ? rawMemberships.length : 0,
+    listedForUser: memberships.length,
   };
 }

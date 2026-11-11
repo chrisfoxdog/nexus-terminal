@@ -409,6 +409,8 @@ app.post("/api/v1/passes/sync", async (req, res) => {
       created: 0,
       reactivated: 0,
       expired: 0,
+      listed_raw: 0,
+      listed_for_user: 0,
     });
   }
 
@@ -428,6 +430,8 @@ app.post("/api/v1/passes/sync", async (req, res) => {
       created: result.created,
       reactivated: result.reactivated,
       expired: result.expired,
+      listed_raw: result.listedRaw,
+      listed_for_user: result.listedForUser,
     });
   } catch (error) {
     return databaseUnavailable(res, error);

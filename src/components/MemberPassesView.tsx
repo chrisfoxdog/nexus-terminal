@@ -69,6 +69,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
   const [isRedeeming, setIsRedeeming] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncWarning, setSyncWarning] = useState(false);
+  const [syncSummary, setSyncSummary] = useState('');
 
   // Passes sync automatically from the buyer's real Whop memberships:
   // most Whop products never issue a license key, so the buyer's passes
@@ -93,6 +94,11 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
           onPassesSync(data.passes.map(mapServerPass));
         }
         setSyncWarning(Boolean(data.sync_warning) || data.synced === false);
+        if (typeof data.listed_raw === 'number') {
+          setSyncSummary(
+            `Whop returned ${data.listed_raw} memberships, ${data.listed_for_user ?? 0} for your account.`
+          );
+        }
       })
       .catch(() => {
         // Network failure — keep showing the passes already loaded.
@@ -278,7 +284,7 @@ export const MemberPassesView: React.FC<MemberPassesViewProps> = ({
             />
             {syncWarning
               ? "Couldn't reach Whop to refresh your passes just now — showing your last synced passes."
-              : 'Passes sync automatically from your Whop memberships.'}
+              : `Passes sync automatically from your Whop memberships.${syncSummary ? ` ${syncSummary}` : ''}`}
           </p>
         </div>
 
