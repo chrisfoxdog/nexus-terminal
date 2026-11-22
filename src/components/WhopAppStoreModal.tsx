@@ -770,17 +770,17 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                 </div>
                 <p className="text-[11px] leading-relaxed opacity-90">
                   Whop <strong>does not have separate permissions</strong> for <em>licenses</em>, <em>user profiles</em>, or <em>products</em>. 
-                  In Whop's architecture, <strong><code className="px-1 py-0.5 rounded bg-black/40 font-mono text-amber-300">memberships:read</code> automatically includes license keys</strong>, and user IDs are passed securely via embedded headers. You only need the 4 permissions listed below!
+                  In Whop's architecture, <strong><code className="px-1 py-0.5 rounded bg-black/40 font-mono text-amber-300">member:basic:read</code> automatically includes license keys</strong>, and user IDs are passed securely via embedded headers. You only need the 4 permissions listed below!
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1. memberships:read */}
+                {/* 1. member:basic:read */}
                 <div className={`p-4 rounded-xl border space-y-2 ${darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
-                        memberships:read
+                        member:basic:read
                       </span>
                       <span className="text-[11px] font-bold text-slate-200">Read Memberships</span>
                     </div>
@@ -788,10 +788,10 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 flex items-start justify-between gap-2">
                     <p className="leading-relaxed">
-                      Verifies paying member status, license keys, and subscription tiers to unlock the terminal, signals, and video courses.
+                      Reads the signed-in buyer's Whop memberships in Elite Software Studio to verify their Nexus pass and sync access when they buy, renew, or cancel. License keys are read from the membership where Whop provides one.
                     </p>
                     <button
-                      onClick={() => handleCopy('perm_mem_read', 'Verifies paying member status, license keys, and subscription tiers to unlock the terminal, signals, and video courses.')}
+                      onClick={() => handleCopy('perm_mem_read', 'Reads the signed-in buyer\'s Whop memberships in Elite Software Studio to verify their Nexus pass and sync access when they buy, renew, or cancel. License keys are read from the membership where Whop provides one.')}
                       className="text-slate-400 hover:text-white p-1 shrink-0"
                       title="Copy Justification"
                     >
@@ -800,12 +800,12 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                 </div>
 
-                {/* 2. payments:read */}
+                {/* 2. payment:basic:read */}
                 <div className={`p-4 rounded-xl border space-y-2 ${darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                        payments:read
+                        payment:basic:read
                       </span>
                       <span className="text-[11px] font-bold text-slate-200">Read Payments</span>
                     </div>
@@ -813,10 +813,10 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 flex items-start justify-between gap-2">
                     <p className="leading-relaxed">
-                      Calculates real-time MRR, recurring revenue trends, and renewal stats for creator business intelligence reports.
+                      Confirms whether a buyer's subscription is active when syncing their Nexus pass.
                     </p>
                     <button
-                      onClick={() => handleCopy('perm_pay_read', 'Calculates real-time MRR, recurring revenue trends, and renewal stats for creator business intelligence reports.')}
+                      onClick={() => handleCopy('perm_pay_read', 'Confirms whether a buyer\'s subscription is active when syncing their Nexus pass.')}
                       className="text-slate-400 hover:text-white p-1 shrink-0"
                       title="Copy Justification"
                     >
@@ -825,12 +825,12 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                 </div>
 
-                {/* 3. companies:read */}
+                {/* 3. company:authorized_user:read */}
                 <div className={`p-4 rounded-xl border space-y-2 ${darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30">
-                        companies:read
+                        company:authorized_user:read
                       </span>
                       <span className="text-[11px] font-bold text-slate-200">Read Company</span>
                     </div>
@@ -838,10 +838,10 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 flex items-start justify-between gap-2">
                     <p className="leading-relaxed">
-                      Loads company branding, store name, and settings into the Creator Studio admin dashboard.
+                      Reads the Elite Software Studio company name, branding, and product list so Nexus Terminal shows the correct store identity in Creator Studio.
                     </p>
                     <button
-                      onClick={() => handleCopy('perm_comp_read', 'Loads company branding, store name, and settings into the Creator Studio admin dashboard.')}
+                      onClick={() => handleCopy('perm_comp_read', 'Reads the Elite Software Studio company name, branding, and product list so Nexus Terminal shows the correct store identity in Creator Studio.')}
                       className="text-slate-400 hover:text-white p-1 shrink-0"
                       title="Copy Justification"
                     >
@@ -850,12 +850,12 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                 </div>
 
-                {/* 4. webhooks:manage */}
+                {/* 4. developer:manage_webhook */}
                 <div className={`p-4 rounded-xl border space-y-2 ${darkMode ? 'bg-slate-950/40 border-slate-800' : 'bg-slate-50 border-slate-200'}`}>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1.5">
                       <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">
-                        webhooks:manage
+                        developer:manage_webhook
                       </span>
                       <span className="text-[11px] font-bold text-slate-200">Manage Webhooks</span>
                     </div>
@@ -863,10 +863,10 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
                   </div>
                   <div className="p-2.5 rounded-lg bg-slate-900 border border-slate-700 text-xs text-slate-300 flex items-start justify-between gap-2">
                     <p className="leading-relaxed">
-                      Subscribes to purchase, renewal, and cancellation events so the pass database stays in sync with Whop.
+                      Receives purchase, renewal, and cancellation webhook events so member passes stay in sync with Whop.
                     </p>
                     <button
-                      onClick={() => handleCopy('perm_web_manage', 'Subscribes to purchase, renewal, and cancellation events so the pass database stays in sync with Whop.')}
+                      onClick={() => handleCopy('perm_web_manage', 'Receives purchase, renewal, and cancellation webhook events so member passes stay in sync with Whop.')}
                       className="text-slate-400 hover:text-white p-1 shrink-0"
                       title="Copy Justification"
                     >
@@ -880,10 +880,10 @@ Nexus Terminal is a Whop app for creators who sell digital products, courses, co
               <div className={`p-3.5 rounded-xl border ${darkMode ? 'bg-slate-950/20 border-slate-800' : 'bg-slate-50 border-slate-200'} space-y-2 text-xs`}>
                 <span className="font-bold text-slate-300">Why You Don't See The Other Permissions in Whop:</span>
                 <ul className="space-y-1.5 text-slate-400 text-[11px] list-disc list-inside">
-                  <li><strong>No "licenses" permission:</strong> In Whop, licenses are stored inside the membership object. <code className="text-indigo-400">memberships:read</code> automatically gives full access to license keys.</li>
+                  <li><strong>No "licenses" permission:</strong> In Whop, licenses are stored inside the membership object. <code className="text-indigo-400">member:basic:read</code> automatically gives full access to license keys.</li>
                   <li><strong>No "users" permission:</strong> Whop apps embedded in an iframe automatically receive the member's short-lived JWT via the <code className="text-indigo-400">x-whop-user-token</code> header on same-origin requests. Nexus Terminal verifies that token against Whop's public JWKS on the server and derives the user ID from it — no extra scope is needed for the token itself.</li>
                   <li><strong>No "memberships:write":</strong> Whop's native checkout handles all creation and billing securely. Apps do not manually generate memberships.</li>
-                  <li><strong>No "products" permission:</strong> Handled under <code className="text-indigo-400">companies:read</code> or public store listings.</li>
+                  <li><strong>No "products" permission:</strong> Handled under <code className="text-indigo-400">company:authorized_user:read</code> or public store listings.</li>
                 </ul>
               </div>
             </div>
