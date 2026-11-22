@@ -1,7 +1,7 @@
 import React from 'react';
-import { ShoppingBag, Key, Zap, Code, Moon, Sun, Bell, HelpCircle, RefreshCw, Rocket } from 'lucide-react';
+import { ShoppingBag, Key, Zap, Code, Moon, Sun, Bell, HelpCircle, RefreshCw, Rocket, LayoutDashboard } from 'lucide-react';
 
-export type NavMode = 'marketplace' | 'passes' | 'creator' | 'developer';
+export type NavMode = 'dashboard' | 'marketplace' | 'passes' | 'creator' | 'developer' | 'help';
 
 interface HeaderNavProps {
   currentMode: NavMode;
@@ -41,7 +41,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           {/* Logo & Whop Brand */}
           <div className="flex items-center gap-3 sm:gap-6 min-w-0">
             <button
-              onClick={() => onSelectMode('marketplace')}
+              onClick={() => onSelectMode('dashboard')}
               className="flex items-center gap-3 text-left group focus:outline-none shrink-0"
             >
               <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center text-white font-bold text-lg italic shadow-sm group-hover:scale-105 transition-transform">
@@ -57,6 +57,18 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
 
             {/* Mode Tabs Navigation */}
             <nav className="hidden md:flex items-center gap-1 bg-slate-100 dark:bg-slate-900/80 p-1 rounded-xl border border-slate-200/80 dark:border-slate-800">
+              <button
+                onClick={() => onSelectMode('dashboard')}
+                className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                  currentMode === 'dashboard'
+                    ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-950/80 dark:text-indigo-300 shadow-xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
+                }`}
+              >
+                <LayoutDashboard className="w-3.5 h-3.5 text-[#35A7FF]" />
+                Dashboard
+              </button>
+
               <button
                 onClick={() => onSelectMode('marketplace')}
                 className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all ${
@@ -161,7 +173,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
               <button
                 onClick={onOpenHowToUse}
                 className="px-2 py-1.5 sm:px-3 rounded-lg bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-600 dark:text-indigo-400 border border-indigo-500/30 text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs shrink-0"
-                title="How to Use Each Feature"
+                title="How to Use — open the Help section"
               >
                 <HelpCircle className="w-4 h-4 text-indigo-500" />
                 <span className="hidden sm:inline">How to Use</span>
@@ -222,6 +234,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
         {/* Mobile Sub Navigation Bar */}
         <div className="md:hidden flex items-center justify-around py-2 border-t border-slate-200 dark:border-slate-800 text-xs overflow-x-auto">
           <button
+            onClick={() => onSelectMode('dashboard')}
+            className={`flex flex-col items-center gap-1 ${currentMode === 'dashboard' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500'}`}
+          >
+            <LayoutDashboard className="w-4 h-4" />
+            <span>Home</span>
+          </button>
+          <button
             onClick={() => onSelectMode('marketplace')}
             className={`flex flex-col items-center gap-1 ${currentMode === 'marketplace' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500'}`}
           >
@@ -251,6 +270,13 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({
           >
             <Code className="w-4 h-4" />
             <span>API</span>
+          </button>
+          <button
+            onClick={() => onOpenHowToUse?.()}
+            className={`flex flex-col items-center gap-1 ${currentMode === 'help' ? 'text-indigo-600 dark:text-indigo-400 font-bold' : 'text-slate-500'}`}
+          >
+            <HelpCircle className="w-4 h-4" />
+            <span>Help</span>
           </button>
         </div>
       </div>

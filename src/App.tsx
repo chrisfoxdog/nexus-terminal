@@ -9,13 +9,16 @@ import { CheckoutModal } from './components/CheckoutModal';
 import { GeminiProductChatWidget } from './components/GeminiProductChatWidget';
 import { HowToUseModal } from './components/HowToUseModal';
 import { WhopAppStoreModal } from './components/WhopAppStoreModal';
+import { DashboardView } from './components/DashboardView';
+import { HelpView } from './components/HelpView';
+import { WalkthroughModal } from './components/WalkthroughModal';
 
 import { WhopProduct, ProductPlan, AccessPass } from './types';
 import { INITIAL_PRODUCTS, INITIAL_USER_PASSES } from './data/whopProducts';
 import { whopAuthHeaders } from './lib/whopAuth';
 
 export default function App() {
-  const [currentMode, setCurrentMode] = useState<NavMode>('marketplace');
+  const [currentMode, setCurrentMode] = useState<NavMode>('dashboard');
   const [darkMode, setDarkMode] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [isEmbedded, setIsEmbedded] = useState(false);
@@ -41,6 +44,10 @@ export default function App() {
         setCurrentMode('developer');
       } else if (viewParam === 'marketplace') {
         setCurrentMode('marketplace');
+      } else if (viewParam === 'help' || viewParam === 'howto') {
+        setCurrentMode('help');
+      } else if (viewParam === 'dashboard' || viewParam === 'home') {
+        setCurrentMode('dashboard');
       }
     } catch (err) {
       console.warn('Iframe check failed:', err);
@@ -151,8 +158,33 @@ export default function App() {
 
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
 
-  // How-to-use modal.
+  // How-to-use feature-guide modal (opened from the Help section).
   const [isHowToUseOpen, setIsHowToUseOpen] = useState(false);
+
+  // First-run guided walkthrough. Auto-opens once, until dismissed;
+  // the seen flag lives in localStorage and the tour stays re-openable
+  // from the Dashboard and the Help section.
+  const [isWalkthroughOpen, setIsWalkthroughOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      if (localStorage.getItem('nexus_walkthrough_seen_v1') !== '1') {
+        const timer = setTimeout(() => setIsWalkthroughOpen(true), 600);
+        return () => clearTimeout(timer);
+      }
+    } catch (err) {
+      console.warn('Walkthrough seen-flag check failed:', err);
+    }
+  }, []);
+
+  const handleDismissWalkthrough = () => {
+    try {
+      localStorage.setItem('nexus_walkthrough_seen_v1', '1');
+    } catch (err) {
+      console.warn('Walkthrough seen-flag save failed:', err);
+    }
+    setIsWalkthroughOpen(false);
+  };
 
   // Sync dark mode with the document.
   useEffect(() => {
@@ -280,7 +312,7 @@ export default function App() {
         onToggleDarkMode={() => setDarkMode(!darkMode)}
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
-        onOpenHowToUse={() => setIsHowToUseOpen(true)}
+        onOpenHowToUse={() => setCurrentMode('help')}
         onResetCatalog={handleResetCatalog}
         onOpenWhopAppStore={() => setIsWhopAppStoreOpen(true)}
         isEmbedded={isEmbedded}
@@ -288,6 +320,16 @@ export default function App() {
 
       {/* Main Container */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        {currentMode === 'dashboard' && (
+          <DashboardView
+            userPasses={userPasses}
+            products={products}
+            darkMode={darkMode}
+            onSelectMode={setCurrentMode}
+            onOpenWalkthrough={() => setIsWalkthroughOpen(true)}
+          />
+        )}
+
         {currentMode === 'marketplace' && (
           <MarketplaceView
             products={products}
@@ -323,6 +365,15 @@ export default function App() {
 
         {currentMode === 'developer' && (
           <DevApiPlayground darkMode={darkMode} />
+        )}
+
+        {currentMode === 'help' && (
+          <HelpView
+            darkMode={darkMode}
+            onSelectMode={setCurrentMode}
+            onOpenWalkthrough={() => setIsWalkthroughOpen(true)}
+            onOpenFeatureGuide={() => setIsHowToUseOpen(true)}
+          />
         )}
       </main>
 
@@ -360,6 +411,14 @@ export default function App() {
         products={products}
         darkMode={darkMode}
         onSelectProduct={handleSelectProduct}
+      />
+
+      {/* First-Run Guided Walkthrough */}
+      <WalkthroughModal
+        isOpen={isWalkthroughOpen}
+        onClose={handleDismissWalkthrough}
+        darkMode={darkMode}
+        onSelectMode={setCurrentMode}
       />
 
       {/* How To Use Modal */}
