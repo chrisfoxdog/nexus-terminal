@@ -48,7 +48,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in">
       <div
-        className={`relative w-full max-w-xl flex flex-col rounded-3xl border shadow-2xl overflow-hidden ${
+        className={`relative w-full max-w-xl max-h-[92dvh] flex flex-col rounded-3xl border shadow-2xl overflow-hidden ${
           darkMode
             ? 'bg-slate-900 border-slate-800 text-white'
             : 'bg-white border-slate-200 text-slate-900'
@@ -73,7 +73,7 @@ export const WalkthroughModal: React.FC<WalkthroughModalProps> = ({
         </div>
 
         {/* Step content */}
-        <div className="px-6 sm:px-8 py-6 space-y-4 min-h-[300px]">
+        <div className="px-6 sm:px-8 py-6 space-y-4 min-h-[300px] overflow-y-auto">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-[#35A7FF]/15 border border-[#35A7FF]/30 flex items-center justify-center shrink-0">
               <Icon className="w-5.5 h-5.5 text-[#35A7FF]" />
